@@ -1,17 +1,25 @@
 '''
 Como se pretende que sea el uso:
 
-LK.py [--tecnica<=lk|shi-tom] [<fuente_video>]
+LK.py [--tecnica<=lk|shi-tom] [<fuente_video>] [n_objetos]
 
-Donde: --tecnica decide cual tecnica tomar, Lucas Kanade o Shi-Tomasi
+Donde: [--tecnica] decide cual tecnica tomar, Lucas Kanade o Shi-Tomasi
        [<fuente_video>] elige un archivo de video y lo lee, sino toma la camara
+	   [n_objetos] es el numero de objetos a seguir
 '''
 
 
 import cv2 as cv
 import numpy as np
 from matplotlib import pyplot as plt
-
+#---------------------------------------------------------------------
+def selector_rois(n):
+	for i in range(n):
+		#https://www.learnopencv.com/how-to-select-a-bounding-box-roi-in-opencv-cpp-python/
+		r=cv.selectROI(frame)
+		#seleccionar imagen
+		Imcrop[i]=frame[int(r[1]):int(r[1]+r[3]), int(r[0]):int(r[0]+r[2])]
+		cv.waitKey(0)
 
 
 
@@ -45,9 +53,13 @@ class seguidor:
 
 
 	def run (self):
-	
-		_ret,frame=cap.read()
-		frame_gray=cv.cvtColor(frame,cv.COLOR_BGR2GRAY)
+		while(True):
+			_ret,frame=cap.read()
+			frame_gray=cv.cvtColor(frame,cv.COLOR_BGR2GRAY)
+			vis=frame.copy()
+			selector_rois(n)
+			
+		
 
 
 #---------------------------------------------------------------------
@@ -62,6 +74,7 @@ if __name__=='__main__':
 	
 	metodo=sys.argv[1]
 	video_src=sys.argv[2]
+	n=sys.argv[3]
 	#https://stackoverflow.com/questions/2709821/what-is-the-purpose-of-self
 	#https://es.stackoverflow.com/questions/202588/como-funciona-self-en-python
 	
