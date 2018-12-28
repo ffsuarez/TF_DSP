@@ -17,6 +17,10 @@ from matplotlib import pyplot as plt
 
 #---------------------------------------------------------------------
 class seguidor:
+	def __init__(self,video_src):
+		cap=cv.videoCapture(video_src)
+	
+	
 	
 	def opciones(self,metod,source):
 		while(True):
@@ -33,11 +37,17 @@ class seguidor:
 				#https://docs.opencv.org/3.0-beta/modules/imgproc/doc/feature_detection.html
 				minDistance=10
 			
-			else:			
-				return None
+			else:
+				print('No se reconoce opcion metod:',metod)
+				print('  O existe problema con la camara')
+				sys.exit(1)
+				
 
 
-
+	def run (self):
+	
+		_ret,frame=cap.read()
+		frame_gray=cv.cvtColor(frame,cv.COLOR_BGR2GRAY)
 
 
 #---------------------------------------------------------------------
@@ -55,6 +65,6 @@ if __name__=='__main__':
 	#https://stackoverflow.com/questions/2709821/what-is-the-purpose-of-self
 	#https://es.stackoverflow.com/questions/202588/como-funciona-self-en-python
 	
-	seguidor(video_src).opciones(metodo,video_src)	
-	
+	seguidor.opciones(metodo,video_src)
+	seguidor.run()
 	
