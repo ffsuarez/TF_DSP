@@ -31,6 +31,13 @@ def selector_rois(n,cap):
 
 #---------------------------------------------------------------------
 class seguidor:
+	#def __init__(self):
+		#self.tracks=[]
+		#self.frame_idx = 0
+		
+
+
+
 	def opciones(self,metod):
 		#https://stackoverflow.com/questions/4117530/sys-argv1-meaning-in-script
 		#https://pymotw.com/2/getopt/
@@ -53,9 +60,23 @@ class seguidor:
 	
 	
 	def seguimiento(self,Imcrop):
+		Imcrop_gray=[]
+		umb=[]
+		kernel=cv.getStructuringElement(cv.MORPH_ELLIPSE,(5,5))
+		contours=[]
+		maximo=[]
+		momentos=[]
+		aux=[None]*n
+		for i in range(n):
+			Imcrop_gray.append(cv.cvtColor(Imcrop[i], cv.COLOR_BGR2GRAY))
+			umb.append(cv.adaptiveThreshold(Imcrop_gray[i],255,cv.ADAPTIVE_THRESH_GAUSSIAN_C,cv.THRESH_BINARY,11,2))
+			umb[i]=cv.morphologyEx(umb[i], cv.MORPH_OPEN, kernel)
+			umb[i]=cv.morphologyEx(umb[i], cv.MORPH_CLOSE, kernel)
+			umb[i]=cv.bitwise_not(umb)
+			_,aux[i],_= cv.findContours(umb[i], cv.RETR_CCOMP, cv.CHAIN_APPROX_TC89_KCOS)
 		
-	
-
+		
+			
 	def run (self):
             try:
                 cap=cv.VideoCapture(video_src)                            
