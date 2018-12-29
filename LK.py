@@ -76,14 +76,14 @@ def dibujo_puntos_nc(recortes,n,punto_elegido,cap,r):
         img[j]=frame[int(r[j][1]):int(r[j][1]+r[j][3]), int(r[j][0]):int(r[j][0]+r[j][2])]
         img_gray[j]=cv.cvtColor(img[j],cv.COLOR_BGR2GRAY)
         punto_elegido[j],st[j],err[j]= cv.calcOpticalFlowPyrLK(recortes[j],img_gray[j],punto_elegido[j],None, **seguidor.opciones(None,metodo)[0])
-        _,frame2=cap.read()
+        #_,frame2=cap.read()
         #pdb.set_trace()
     for i in range(n):
         for k in punto_elegido[i]:
-            cv.circle(frame2[i],tuple(k[0]), 3, (0,0,255), -1)
+            cv.circle(img[i],tuple(k[0]), 3, (0,0,255), -1)
             recortes[i]=img_gray[i].copy()
-            frame2[int(r[i][1]):int(r[i][1]+r[i][3]), int(r[i][0]):int(r[i][0]+r[i][2])]=img[i]
-    cv.imshow('testing',frame2)
+            frame[int(r[i][1]):int(r[i][1]+r[i][3]), int(r[i][0]):int(r[i][0]+r[i][2])]=img[i]
+    cv.imshow('testing',frame)
 	
 
 
@@ -140,7 +140,7 @@ class seguidor:
 		
 		
 		if(metod=='--lk'):
-			lk_params = dict( winSize  = (15, 15),maxLevel = 2,criteria = (cv.TERM_CRITERIA_EPS | cv.TERM_CRITERIA_COUNT, 10, 0.03))
+			lk_params = dict( winSize  = (500, 500),maxLevel = 20,criteria = (cv.TERM_CRITERIA_EPS | cv.TERM_CRITERIA_COUNT, 10, 0.03))
 			feature_params = dict( maxCorners = 500,qualityLevel = 0.3,minDistance = 7,blockSize = 7 )
 			return(lk_params,feature_params)
 		elif(metod=='--shi'):
