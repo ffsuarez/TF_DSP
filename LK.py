@@ -103,18 +103,19 @@ class seguidor:
 
 
 import os
-
+#import time
+#import msvcrt
 #from common import anorm, getsize
 
 if __name__=='__main__':
 	print(__doc__)
 	import sys,getopt
 	#opcs,args=getopt.getopt   
-	metodo=sys.argv[2]
-	video_src=sys.argv[3]
-	n=sys.argv[4]
+	metodo=sys.argv[1]
+	video_src=sys.argv[2]
+	n=sys.argv[3]
 	n=int(n)
-	color=sys.argv[5]
+	color=sys.argv[4]
 
 	#metodo='--lk'
 	#video_src=0
@@ -123,7 +124,8 @@ if __name__=='__main__':
 	tec_esc='a'
 	seguidor.opciones(None,metodo)
 	seguidor.__init__(None,video_src)
-	while(tec_esc != 'q')
+	while(tec_esc != 27):
 		seguidor.run(None)
-		tec_esc=cv.waitKeyEx(0)
+		cv.namedWindow('Test Key') #necesaria para que waitkey funcione bien
+		tec_esc=cv.waitKey(0)
 	cv.destroyAllWindows()
