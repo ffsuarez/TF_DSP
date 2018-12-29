@@ -96,25 +96,27 @@ class seguidor:
 			
 	
 	def run (self,puntos,cap,n,color):
-		print('Comenzando trabajo')
-		_,frame=cap.read()
-		if(color=='--color'):
-			hsv=cv.cvtColor(frame,cv.COLOR_BGR2HSV)
-		else:
-			frame_gray=cv.cvtColor(frame,cv.COLOR_BGR2GRAY)
-		recortes=[None]*n
-		for i in range(n):
-			r=puntos_objeto(frame)
-			puntos.append(r)			
-		cv.destroyAllWindows()
-		for j in range(n):
-			if(color=='--color'):
-				recortes[i]=hsv[int(r[1]):int(r[1]+r[3]), int(r[0]):int(r[0]+r[2])]
-				cv.imshow('testing',recortes[i])
-				cv.waitKey(0)
-				cv.destroyAllWindows()
-			else:
-				recortes[i]=frame_gray[int(r[1]):int(r[1]+r[3]), int(r[0]):int(r[0]+r[2])]
+            print('Comenzando trabajo')
+            _,frame=cap.read()
+            if(color=='--color'):
+                    hsv=cv.cvtColor(frame,cv.COLOR_BGR2HSV)
+            else:
+                    frame_gray=cv.cvtColor(frame,cv.COLOR_BGR2GRAY)
+            recortes=[None]*n
+            for i in range(n):
+                    r=puntos_objeto(frame)
+                    puntos.append(r)
+                    cv.destroyAllWindows()
+                    if(color=='--color'):
+                        recortes[i]=hsv[int(r[1]):int(r[1]+r[3]), int(r[0]):int(r[0]+r[2])]
+                        cv.imshow('testing',recortes[i])
+                        cv.waitKey(0)
+                        cv.destroyAllWindows()
+                    else:
+                        recortes[i]=frame_gray[int(r[1]):int(r[1]+r[3]), int(r[0]):int(r[0]+r[2])]
+
+		
+
 
 
 #---------------------------------------------------------------------
