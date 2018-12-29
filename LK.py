@@ -98,9 +98,12 @@ class seguidor:
 	def run (self,puntos,cap,n):
 		print('Comenzando trabajo')
 		_,frame=cap.read()
+		frame_gray=cv.cvtColor(frame,cv.COLOR_BGR2GRAY)
 		for i in range(n):
 			r=puntos_objeto(frame)
-			puntos.append(r)
+			puntos.append(r)			
+		cv.destroyAllWindows()
+		
 
 
 #---------------------------------------------------------------------
@@ -118,6 +121,8 @@ if __name__=='__main__':
 	#opcs,args=getopt.getopt   
 	metodo=sys.argv[1]
 	video_src=sys.argv[2]
+	if (video_src=='0'):
+            video_src=int(video_src)
 	n=sys.argv[3]
 	n=int(n)
 	color=sys.argv[4]
@@ -129,6 +134,7 @@ if __name__=='__main__':
 	tec_esc='a'
 	seguidor.opciones(None,metodo)
 	cap=seguidor.__init__(None,video_src)
+	_,frame=cap.read()	
 	while(tec_esc != 27):
 		seguidor.run(None,puntos,cap,n)
 		cv.namedWindow('Test Key') #necesaria para que waitkey funcione bien
