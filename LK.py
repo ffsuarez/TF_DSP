@@ -24,12 +24,12 @@ Recordar realizar la aplicación de los comandos
 
 Como se pretende que sea el uso:
 
-LK.py [--tecnica<=lk|shi-tom] [<fuente_video>] [n_objetos]
+LK.py [--tecnica<=--lk| --shi] [<fuente_video>] [n_objetos] [--color<= --color]
 
 Donde: [--tecnica] decide cual tecnica tomar, Lucas Kanade o Shi-Tomasi
        [<fuente_video>] elige un archivo de video y lo lee, sino toma la camara
 	   [n_objetos] es el numero de objetos a seguir
-	   
+	   [--color] decide agregar la condicion de seguir al objeto si posee determinado color
 
 
 
@@ -95,22 +95,7 @@ class seguidor:
 			
 	
 	def run (self):
-		_,frame=cap.read()	
-		r=[None]*n #obtengo los puntos del bounding box de cada objeto
-		sel=[None]*n
-		for i in range(n):			
-			r[i]=puntos_objeto(frame,i)
-		while(True):
-			_,frame=cap.read()
-			for j in range(n):
-				sel[i]=frame[int(r[j][1]):int(r[j][1]+r[j][3]), int(r[j][0]):int(r[j][0]+r[j][2])]
-				sel[i]=cv.cvtColor(sel[i],cv.COLOR_BGR2GRAY)
-			
-			
-		
-		#gray=cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
-            
-		
+		print('prueba')
 
 
 #---------------------------------------------------------------------
@@ -125,15 +110,20 @@ if __name__=='__main__':
 	print(__doc__)
 	import sys,getopt
 	#opcs,args=getopt.getopt   
-##	metodo=sys.argv[2]
-##	video_src=sys.argv[3]
-##	n=sys.argv[4]
-##	n=int(n)
+	metodo=sys.argv[2]
+	video_src=sys.argv[3]
+	n=sys.argv[4]
+	n=int(n)
+	color=sys.argv[5]
 
-	metodo='--lk'
-	video_src=0
-	n=2
+	#metodo='--lk'
+	#video_src=0
+	#n=2
+	puntos=[None]*n
+	tec_esc='a'
 	seguidor.opciones(None,metodo)
 	seguidor.__init__(None,video_src)
-	seguidor.run(None)
-	
+	while(tec_esc != 'q')
+		seguidor.run(None)
+		tec_esc=cv.waitKeyEx(0)
+	cv.destroyAllWindows()
