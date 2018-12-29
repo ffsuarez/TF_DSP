@@ -60,7 +60,7 @@ import pdb
 
 
 #---------------------------------------------------------------------
-def puntos_objeto(frame,i):
+def puntos_objeto(frame):
 	r=cv.selectROI(frame)
 	#pdb.set_trace()
 	return(r)
@@ -75,7 +75,8 @@ class seguidor:
 		try:
 			cap=cv.VideoCapture(video_src)                            
 		except:
-			cap=cv.VideoCapture(0)                           
+			cap=cv.VideoCapture(0)
+		return(cap)
 
 
 	def opciones(self,metod):
@@ -94,8 +95,12 @@ class seguidor:
 			sys.exit(1)
 			
 	
-	def run (self):
-		print('prueba')
+	def run (self,puntos,cap,n):
+		print('Comenzando trabajo')
+		_,frame=cap.read()
+		for i in range(n):
+			r=puntos_objeto(frame)
+			puntos.append(r)
 
 
 #---------------------------------------------------------------------
@@ -123,9 +128,9 @@ if __name__=='__main__':
 	puntos=[None]*n
 	tec_esc='a'
 	seguidor.opciones(None,metodo)
-	seguidor.__init__(None,video_src)
+	cap=seguidor.__init__(None,video_src)
 	while(tec_esc != 27):
-		seguidor.run(None)
+		seguidor.run(None,puntos,cap,n)
 		cv.namedWindow('Test Key') #necesaria para que waitkey funcione bien
 		tec_esc=cv.waitKey(0)
 	cv.destroyAllWindows()
