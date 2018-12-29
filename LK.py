@@ -67,22 +67,23 @@ def puntos_objeto(frame):
 #---------------------------------------------------------------------
 def dibujo_puntos_nc(recortes,n,punto_elegido,cap,r):
     _,frame=cap.read()
-    pdb.set_trace()
+    #pdb.set_trace()
     st=[None]*n
     err=[None]*n
-	img=[None]*n
-	img_gray=[None]*n
+    img=[None]*n
+    img_gray=[None]*n
     for j in range(n):
         img[j]=frame[int(r[j][1]):int(r[j][1]+r[j][3]), int(r[j][0]):int(r[j][0]+r[j][2])]
         img_gray[j]=cv.cvtColor(img[j],cv.COLOR_BGR2GRAY)
         punto_elegido[j],st[j],err[j]= cv.calcOpticalFlowPyrLK(recortes[j],img_gray[j],punto_elegido[j],None, **seguidor.opciones(None,metodo)[0])
-	_,frame2=cap.read()
-	for i in range(n):
-		for j in punto_elegido[i]:
-			cv.circle(frame,img[i](j[0]), 3, (0,0,255), -1)
-		recortes[i]=img_gray[i].copy()
-		frame2[int(r[i][1]):int(r[i][1]+r[i][3]), int(r[i][0]):int(r[i][0]+r[i][2])]=frame
-	cv.imshow('testing',frame2)
+        _,frame2=cap.read()
+        #pdb.set_trace()
+    for i in range(n):
+        for k in punto_elegido[i]:
+            cv.circle(frame,tuple(k[0]), 3, (0,0,255), -1)
+            recortes[i]=img_gray[i].copy()
+            frame2[int(r[i][1]):int(r[i][1]+r[i][3]), int(r[i][0]):int(r[i][0]+r[i][2])]=img[i]
+    cv.imshow('testing',frame2)
 	
 
 
@@ -188,10 +189,18 @@ class seguidor:
                         cy[i]=float(momentos[i]['m01']/momentos[i]['m00'])
                         punto_elegido[i]=np.array([[[cx[i],cy[i]]]],np.float32)
             if(color=='--nocolor'):
-                dibujo_puntos_nc(recortes,n,punto_elegido,cap,r)
+                while(True):
+                    dibujo_puntos_nc(recortes,n,punto_elegido,cap,r)
+                    tecla = cv.waitKey(5) & 0xFF
+                    if tecla == 27:
+                        break                    
             elif(color=='--color'):
                 #pdb.set_trace()
-                dibujo_puntos(recortes,n,punto_elegido,cap,r)
+                print("prueba")
+                 
+                
+                
+                
             
 
 
