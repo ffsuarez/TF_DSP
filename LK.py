@@ -80,7 +80,7 @@ def dibujo_puntos_nc(recortes,n,punto_elegido,cap,r):
         #pdb.set_trace()
     for i in range(n):
         for k in punto_elegido[i]:
-            cv.circle(frame,tuple(k[0]), 3, (0,0,255), -1)
+            cv.circle(frame2[i],tuple(k[0]), 3, (0,0,255), -1)
             recortes[i]=img_gray[i].copy()
             frame2[int(r[i][1]):int(r[i][1]+r[i][3]), int(r[i][0]):int(r[i][0]+r[i][2])]=img[i]
     cv.imshow('testing',frame2)
@@ -235,6 +235,6 @@ if __name__=='__main__':
 	_,frame=cap.read()	
 	while(tec_esc != 27):
 		seguidor.run(None,puntos,cap,n,color)
-		cv.namedWindow('Test Key') #necesaria para que waitkey funcione bien
+		#cv.namedWindow('Test Key') #necesaria para que waitkey funcione bien
 		tec_esc=cv.waitKey(0)
 	cv.destroyAllWindows()
