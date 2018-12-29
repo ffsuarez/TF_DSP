@@ -111,7 +111,7 @@ class seguidor:
             cx=[None]*n
             cy=[None]*n
             punto_elegido=[None]*n
-			r=[None]*n
+            r=[None]*n
             if(color=='--color'):
                     hsv=cv.cvtColor(frame,cv.COLOR_BGR2HSV)
             elif(color=='--nocolor'):
@@ -119,12 +119,13 @@ class seguidor:
             recortes=[None]*n
             for i in range(n):
                     r[i]=puntos_objeto(frame)
+                    #pdb.set_trace()
                     puntos.append(r[i])
                     cv.destroyAllWindows()
                     if(color=='--color'):
-                        recortes[i]=hsv[int(r[1]):int(r[1]+r[3]), int(r[0]):int(r[0]+r[2])]
+                        recortes[i]=hsv[int(r[i][1]):int(r[i][1]+r[i][3]), int(r[i][0]):int(r[i][0]+r[i][2])]
                     elif(color=='--nocolor'):
-                        recortes[i]=frame_gray[int(r[1]):int(r[1]+r[3]), int(r[0]):int(r[0]+r[2])]
+                        recortes[i]=frame_gray[int(r[i][1]):int(r[i][1]+r[i][3]), int(r[i][0]):int(r[i][0]+r[i][2])]
                         recortes[i]=cv.adaptiveThreshold(recortes[i],255,cv.ADAPTIVE_THRESH_GAUSSIAN_C,cv.THRESH_BINARY,11,2)
                         recortes[i] = cv.morphologyEx(recortes[i], cv.MORPH_OPEN, kernel)
                         recortes[i] = cv.morphologyEx(recortes[i], cv.MORPH_CLOSE, kernel)
@@ -138,6 +139,7 @@ class seguidor:
             if(color=='--nocolor'):
                 dibujo_puntos_nc(recortes,n,punto_elegido)
             elif(color=='--color'):
+                pdb.set_trace()
                 dibujo_puntos(recortes,n,punto_elegido)
             
 
