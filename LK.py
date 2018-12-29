@@ -95,15 +95,26 @@ class seguidor:
 			sys.exit(1)
 			
 	
-	def run (self,puntos,cap,n):
+	def run (self,puntos,cap,n,color):
 		print('Comenzando trabajo')
 		_,frame=cap.read()
-		frame_gray=cv.cvtColor(frame,cv.COLOR_BGR2GRAY)
+		if(color=='--color'):
+			hsv=cv.cvtColor(frame,cv.COLOR_BGR2HSV)
+		else:
+			frame_gray=cv.cvtColor(frame,cv.COLOR_BGR2GRAY)
+		recortes=[None]*n
 		for i in range(n):
 			r=puntos_objeto(frame)
 			puntos.append(r)			
 		cv.destroyAllWindows()
-		
+		for j in range(n):
+			if(color=='--color'):
+				recortes[i]=hsv[int(r[1]):int(r[1]+r[3]), int(r[0]):int(r[0]+r[2])]
+				cv.imshow('testing',recortes[i])
+				cv.waitKey(0)
+				cv.destroyAllWindows()
+			else:
+				recortes[i]=frame_gray[int(r[1]):int(r[1]+r[3]), int(r[0]):int(r[0]+r[2])]
 
 
 #---------------------------------------------------------------------
@@ -136,7 +147,7 @@ if __name__=='__main__':
 	cap=seguidor.__init__(None,video_src)
 	_,frame=cap.read()	
 	while(tec_esc != 27):
-		seguidor.run(None,puntos,cap,n)
+		seguidor.run(None,puntos,cap,n,color)
 		cv.namedWindow('Test Key') #necesaria para que waitkey funcione bien
 		tec_esc=cv.waitKey(0)
 	cv.destroyAllWindows()
