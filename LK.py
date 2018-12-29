@@ -65,10 +65,51 @@ def puntos_objeto(frame):
     #pdb.set_trace()
     return(r)
 #---------------------------------------------------------------------
-def dibujo_puntos_nc(recortes,n,punto_elegido):
-    print("prueba")
-    
-    
+def dibujo_puntos_nc(recortes,n,punto_elegido,cap,r):
+    _,frame=cap.read()
+    st=[None]*n
+	err=[None]*n
+	for j in range(n):
+		img=frame[int(r[i][1]):int(r[i][1]+r[i][3]), int(r[i][0]):int(r[i][0]+r[i][2])]
+		img_gray=cv.cvtColor(img,cv.COLOR_BGR2GRAY)
+		punto_elegido[j],st[j],err[j]= cv.calcOpticalFlowPyrLK(recortes[i],img_gray,punto_elegido[i],None, **lk_params)
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
 #---------------------------------------------------------------------
 def dibujo_puntos(recortes,n,punto_elegido):
 	print("prueba")
@@ -137,10 +178,10 @@ class seguidor:
                         cy[i]=float(momentos[i]['m01']/momentos[i]['m00'])
                         punto_elegido[i]=np.array([[[cx[i],cy[i]]]],np.float32)
             if(color=='--nocolor'):
-                dibujo_puntos_nc(recortes,n,punto_elegido)
+                dibujo_puntos_nc(recortes,n,punto_elegido,cap,r)
             elif(color=='--color'):
                 pdb.set_trace()
-                dibujo_puntos(recortes,n,punto_elegido)
+                dibujo_puntos(recortes,n,punto_elegido,cap,r)
             
 
 
