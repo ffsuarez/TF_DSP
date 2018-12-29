@@ -24,7 +24,7 @@ Recordar realizar la aplicación de los comandos
 
 Como se pretende que sea el uso:
 
-LK.py [--tecnica<=--lk| --shi] [<fuente_video>] [n_objetos] [--color<= --color]
+LK.py [--tecnica<=--lk| --shi] [<fuente_video>] [n_objetos] [--color<= --color --nocolor]
 
 Donde: [--tecnica] decide cual tecnica tomar, Lucas Kanade o Shi-Tomasi
        [<fuente_video>] elige un archivo de video y lo lee, sino toma la camara
@@ -100,7 +100,7 @@ class seguidor:
             _,frame=cap.read()
             if(color=='--color'):
                     hsv=cv.cvtColor(frame,cv.COLOR_BGR2HSV)
-            else:
+            elif(color=='--nocolor'):
                     frame_gray=cv.cvtColor(frame,cv.COLOR_BGR2GRAY)
             recortes=[None]*n
             for i in range(n):
@@ -109,11 +109,12 @@ class seguidor:
                     cv.destroyAllWindows()
                     if(color=='--color'):
                         recortes[i]=hsv[int(r[1]):int(r[1]+r[3]), int(r[0]):int(r[0]+r[2])]
+                    elif(color=='--nocolor'):
+                        recortes[i]=frame_gray[int(r[1]):int(r[1]+r[3]), int(r[0]):int(r[0]+r[2])]
                         cv.imshow('testing',recortes[i])
                         cv.waitKey(0)
                         cv.destroyAllWindows()
-                    else:
-                        recortes[i]=frame_gray[int(r[1]):int(r[1]+r[3]), int(r[0]):int(r[0]+r[2])]
+
 
 		
 
