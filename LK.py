@@ -70,12 +70,20 @@ def dibujo_puntos_nc(recortes,n,punto_elegido,cap,r):
     pdb.set_trace()
     st=[None]*n
     err=[None]*n
+	img=[None]*n
+	img_gray=[None]*n
     for j in range(n):
-        img=frame[int(r[j][1]):int(r[j][1]+r[j][3]), int(r[j][0]):int(r[j][0]+r[j][2])]
-        img_gray=cv.cvtColor(img,cv.COLOR_BGR2GRAY)
-        punto_elegido[j],st[j],err[j]= cv.calcOpticalFlowPyrLK(recortes[j],img_gray,punto_elegido[j],None, **seguidor.opciones(None,metodo)[0])
- 
-
+        img[j]=frame[int(r[j][1]):int(r[j][1]+r[j][3]), int(r[j][0]):int(r[j][0]+r[j][2])]
+        img_gray[j]=cv.cvtColor(img[j],cv.COLOR_BGR2GRAY)
+        punto_elegido[j],st[j],err[j]= cv.calcOpticalFlowPyrLK(recortes[j],img_gray[j],punto_elegido[j],None, **seguidor.opciones(None,metodo)[0])
+	_,frame2=cap.read()
+	for i in range(n):
+		for j in punto_elegido[i]:
+			cv.circle(frame,img[i](j[0]), 3, (0,0,255), -1)
+		recortes[i]=img_gray[i].copy()
+		frame2[int(r[i][1]):int(r[i][1]+r[i][3]), int(r[i][0]):int(r[i][0]+r[i][2])]=frame
+	cv.imshow('testing',frame2)
+	
 
 
 
