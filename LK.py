@@ -67,12 +67,13 @@ def puntos_objeto(frame):
 #---------------------------------------------------------------------
 def dibujo_puntos_nc(recortes,n,punto_elegido,cap,r):
     _,frame=cap.read()
+    pdb.set_trace()
     st=[None]*n
-	err=[None]*n
-	for j in range(n):
-		img=frame[int(r[i][1]):int(r[i][1]+r[i][3]), int(r[i][0]):int(r[i][0]+r[i][2])]
-		img_gray=cv.cvtColor(img,cv.COLOR_BGR2GRAY)
-		punto_elegido[j],st[j],err[j]= cv.calcOpticalFlowPyrLK(recortes[i],img_gray,punto_elegido[i],None, **lk_params)
+    err=[None]*n
+    for j in range(n):
+        img=frame[int(r[j][1]):int(r[j][1]+r[j][3]), int(r[j][0]):int(r[j][0]+r[j][2])]
+        img_gray=cv.cvtColor(img,cv.COLOR_BGR2GRAY)
+        punto_elegido[j],st[j],err[j]= cv.calcOpticalFlowPyrLK(recortes[j],img_gray,punto_elegido[j],None, **seguidor.opciones(None,metodo)[0])
  
 
 
@@ -131,7 +132,8 @@ class seguidor:
 		
 		if(metod=='--lk'):
 			lk_params = dict( winSize  = (15, 15),maxLevel = 2,criteria = (cv.TERM_CRITERIA_EPS | cv.TERM_CRITERIA_COUNT, 10, 0.03))
-			feature_params = dict( maxCorners = 500,qualityLevel = 0.3,minDistance = 7,blockSize = 7 )		
+			feature_params = dict( maxCorners = 500,qualityLevel = 0.3,minDistance = 7,blockSize = 7 )
+			return(lk_params,feature_params)
 		elif(metod=='--shi'):
 			maxCorners=25
 			qualityLevel=0.01
@@ -180,7 +182,7 @@ class seguidor:
             if(color=='--nocolor'):
                 dibujo_puntos_nc(recortes,n,punto_elegido,cap,r)
             elif(color=='--color'):
-                pdb.set_trace()
+                #pdb.set_trace()
                 dibujo_puntos(recortes,n,punto_elegido,cap,r)
             
 
