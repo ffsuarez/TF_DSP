@@ -61,12 +61,18 @@ import pdb
 
 #---------------------------------------------------------------------
 def puntos_objeto(frame):
-	r=cv.selectROI(frame)
-	#pdb.set_trace()
-	return(r)
+    r=cv.selectROI(frame)
+    #pdb.set_trace()
+    return(r)
+#---------------------------------------------------------------------
+def dibujo_puntos_nc(recortes,n,punto_elegido):
+    print("prueba")
+    
+    
+#---------------------------------------------------------------------
+def dibujo_puntos(recortes,n,punto_elegido):
+	print("prueba")
 
-	
-	
 #---------------------------------------------------------------------
 class seguidor:
 		
@@ -104,20 +110,21 @@ class seguidor:
             momentos=[None]*n
             cx=[None]*n
             cy=[None]*n
+            punto_elegido=[None]*n
+			r=[None]*n
             if(color=='--color'):
                     hsv=cv.cvtColor(frame,cv.COLOR_BGR2HSV)
             elif(color=='--nocolor'):
                     frame_gray=cv.cvtColor(frame,cv.COLOR_BGR2GRAY)
             recortes=[None]*n
             for i in range(n):
-                    r=puntos_objeto(frame)
-                    puntos.append(r)
+                    r[i]=puntos_objeto(frame)
+                    puntos.append(r[i])
                     cv.destroyAllWindows()
                     if(color=='--color'):
                         recortes[i]=hsv[int(r[1]):int(r[1]+r[3]), int(r[0]):int(r[0]+r[2])]
                     elif(color=='--nocolor'):
                         recortes[i]=frame_gray[int(r[1]):int(r[1]+r[3]), int(r[0]):int(r[0]+r[2])]
-                        pdb.set_trace()
                         recortes[i]=cv.adaptiveThreshold(recortes[i],255,cv.ADAPTIVE_THRESH_GAUSSIAN_C,cv.THRESH_BINARY,11,2)
                         recortes[i] = cv.morphologyEx(recortes[i], cv.MORPH_OPEN, kernel)
                         recortes[i] = cv.morphologyEx(recortes[i], cv.MORPH_CLOSE, kernel)
@@ -127,11 +134,12 @@ class seguidor:
                         momentos[i] = cv.moments(maximo[i])
                         cx[i]=float(momentos[i]['m10']/momentos[i]['m00'])
                         cy[i]=float(momentos[i]['m01']/momentos[i]['m00'])
-
-
-
-		
-
+                        punto_elegido[i]=np.array([[[cx[i],cy[i]]]],np.float32)
+            if(color=='--nocolor'):
+                dibujo_puntos_nc(recortes,n,punto_elegido)
+            elif(color=='--color'):
+                dibujo_puntos(recortes,n,punto_elegido)
+            
 
 
 #---------------------------------------------------------------------
