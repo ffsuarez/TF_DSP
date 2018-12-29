@@ -111,9 +111,7 @@ class seguidor:
                         recortes[i]=hsv[int(r[1]):int(r[1]+r[3]), int(r[0]):int(r[0]+r[2])]
                     elif(color=='--nocolor'):
                         recortes[i]=frame_gray[int(r[1]):int(r[1]+r[3]), int(r[0]):int(r[0]+r[2])]
-                        cv.imshow('testing',recortes[i])
-                        cv.waitKey(0)
-                        cv.destroyAllWindows()
+						recortes[i]=cv.adaptiveThreshold(recortes[i],255,cv.ADAPTIVE_THRESH_GAUSSIAN_C,cv.THRESH_BINARY,11,2)
 
 
 		
