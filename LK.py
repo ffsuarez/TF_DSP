@@ -84,7 +84,7 @@ def dibujo_puntos_nc(recortes,n,punto_elegido,cap,r,contours):
             cv.circle(img[i],tuple(k[0]), 3, (0,0,255), -1)
             recortes[i]=img_gray[i].copy()
             frame[int(r[i][1]):int(r[i][1]+r[i][3]), int(r[i][0]):int(r[i][0]+r[i][2])]=img[i]
-	analizo_objeto(punto_elegido,contours,r)
+	analizo_objeto(punto_elegido,r,n)
     cv.imshow('testing',frame)
 	
 
@@ -93,11 +93,9 @@ def dibujo_puntos(recortes,n,punto_elegido):
 	print("prueba")
 
 #---------------------------------------------------------------------
-def analizo_objeto(punto_elegido,contours,n):
-	for x in range(int(r[1][0])-int(r[0][0])):
-		for k in range(n):
-			if punto_elegido[k]!=x:
-				print("se fue de su cuadro")
+def analizo_objeto(punto_elegido,r,n):
+	for i in range(n):
+		punto_elegido[i]=punto_elegido[i]& Rect(r[i][0],r[i][1],r[i][2],r[i][3])
 
 #---------------------------------------------------------------------
 class seguidor:
