@@ -43,6 +43,7 @@ Donde: [--tecnica] decide cual tecnica tomar, Lucas Kanade o Shi-Tomasi
 #https://docs.opencv.org/3.0-beta/modules/imgproc/doc/feature_detection.html
 #https://stackoverflow.com/questions/2709821/what-is-the-purpose-of-self
 #https://es.stackoverflow.com/questions/202588/como-funciona-self-en-python	
+https://docs.opencv.org/2.4/modules/imgproc/doc/structural_analysis_and_shape_descriptors.html#double%20matchShapes(InputArray%20contour1,%20InputArray%20contour2,%20int%20method,%20double%20parameter)
 ----------------------------------------------------------------------------------
 ----------------------------------------------------------------------------------
 ----------------------------------------------------------------------------------
@@ -65,7 +66,7 @@ def puntos_objeto(frame):
     #pdb.set_trace()
     return(r)
 #---------------------------------------------------------------------
-def dibujo_puntos_nc(recortes,n,punto_elegido,cap,r):
+def dibujo_puntos_nc(recortes,n,punto_elegido,cap,r,contours):
     _,frame=cap.read()
     #pdb.set_trace()
     st=[None]*n
@@ -83,46 +84,20 @@ def dibujo_puntos_nc(recortes,n,punto_elegido,cap,r):
             cv.circle(img[i],tuple(k[0]), 3, (0,0,255), -1)
             recortes[i]=img_gray[i].copy()
             frame[int(r[i][1]):int(r[i][1]+r[i][3]), int(r[i][0]):int(r[i][0]+r[i][2])]=img[i]
+	analizo_objeto(punto_elegido,contours,r)
     cv.imshow('testing',frame)
 	
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
- 
 #---------------------------------------------------------------------
 def dibujo_puntos(recortes,n,punto_elegido):
 	print("prueba")
+
+#---------------------------------------------------------------------
+def analizo_objeto(punto_elegido,contours,n):
+	for x in range(int(r[1][0])-int(r[0][0])):
+		for k in range(n):
+			if punto_elegido[k]!=x:
+				print("se fue de su cuadro")
 
 #---------------------------------------------------------------------
 class seguidor:
@@ -143,10 +118,6 @@ class seguidor:
 			lk_params = dict( winSize  = (500, 500),maxLevel = 20,criteria = (cv.TERM_CRITERIA_EPS | cv.TERM_CRITERIA_COUNT, 10, 0.03))
 			feature_params = dict( maxCorners = 500,qualityLevel = 0.3,minDistance = 7,blockSize = 7 )
 			return(lk_params,feature_params)
-		elif(metod=='--shi'):
-			maxCorners=25
-			qualityLevel=0.01
-			minDistance=10		
 		else:
 			print('No se reconoce opcion metod:',metod)
 			print('  O existe problema con la camara')
@@ -190,7 +161,7 @@ class seguidor:
                         punto_elegido[i]=np.array([[[cx[i],cy[i]]]],np.float32)
             if(color=='--nocolor'):
                 while(True):
-                    dibujo_puntos_nc(recortes,n,punto_elegido,cap,r)
+                    dibujo_puntos_nc(recortes,n,punto_elegido,cap,r,momentos,contours)					
                     tecla = cv.waitKey(5) & 0xFF
                     if tecla == 27:
                         break                    
