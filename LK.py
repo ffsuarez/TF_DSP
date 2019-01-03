@@ -84,7 +84,7 @@ def dibujo_puntos_nc(recortes,n,punto_elegido,cap,r,contours):
             cv.circle(img[i],tuple(k[0]), 3, (0,0,255), -1)
             recortes[i]=img_gray[i].copy()
             frame[int(r[i][1]):int(r[i][1]+r[i][3]), int(r[i][0]):int(r[i][0]+r[i][2])]=img[i]
-	analizo_objeto(punto_elegido,r,n)
+        analizo_objeto(punto_elegido,r,n)
     cv.imshow('testing',frame)
 	
 
@@ -94,9 +94,14 @@ def dibujo_puntos(recortes,n,punto_elegido):
 
 #---------------------------------------------------------------------
 def analizo_objeto(punto_elegido,r,n):
-	for i in range(n):
-		punto_elegido[i]=punto_elegido[i]& Rect(r[i][0],r[i][1],r[i][2],r[i][3])
-
+    for i in range(n):
+        pdb.set_trace()
+        tuple1=tuple(map(tuple, r)) #https://stackoverflow.com/questions/10016352/convert-numpy-array-to-tuple
+        tuple2=tuple(map(tuple, punto_elegido))
+        value=cv.pointPolygonTest(tuple1,tuple2,False)
+        if(value==1):
+            print("NONONONONO")
+            
 #---------------------------------------------------------------------
 class seguidor:
 		
@@ -159,7 +164,7 @@ class seguidor:
                         punto_elegido[i]=np.array([[[cx[i],cy[i]]]],np.float32)
             if(color=='--nocolor'):
                 while(True):
-                    dibujo_puntos_nc(recortes,n,punto_elegido,cap,r,momentos,contours)					
+                    dibujo_puntos_nc(recortes,n,punto_elegido,cap,r,contours)					
                     tecla = cv.waitKey(5) & 0xFF
                     if tecla == 27:
                         break                    
