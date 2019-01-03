@@ -83,8 +83,21 @@ def dibujo_puntos_nc(recortes,n,punto_elegido,cap,r,contours):
         for k in punto_elegido[i]:
             cv.circle(img[i],tuple(k[0]), 3, (0,0,255), -1)
             recortes[i]=img_gray[i].copy()
-            frame[int(r[i][1]):int(r[i][1]+r[i][3]), int(r[i][0]):int(r[i][0]+r[i][2])]=img[i]
-        analizo_objeto(punto_elegido,r,n)
+            
+            #https://stackoverflow.com/questions/48829532/module-cv2-cv2-has-no-attribute-puttext
+            font     = cv.FONT_HERSHEY_COMPLEX
+            bottomLeftCornerOfText = (10,200) 
+            fontScale    = 1 
+            fontColor    = (255,255,255) 
+            lineType    = 2
+            cv.putText(frame,"{:.2f}".format(punto_elegido[i][i][i][i]), 
+                bottomLeftCornerOfText, 
+                font, 
+                fontScale, 
+                fontColor, 
+                lineType) 
+            frame[int(r[i][1]):int(r[i][1]+r[i][3]), int(r[i][0]):int(r[i][0]+r[i][2])]=img[i]            
+        analizo_objeto(punto_elegido,img,n)        
     cv.imshow('testing',frame)
 	
 
@@ -93,14 +106,14 @@ def dibujo_puntos(recortes,n,punto_elegido):
 	print("prueba")
 
 #---------------------------------------------------------------------
-def analizo_objeto(punto_elegido,r,n):
+def analizo_objeto(punto_elegido,img,n):
     for i in range(n):
-        pdb.set_trace()
-        tuple1=tuple(map(tuple, r)) #https://stackoverflow.com/questions/10016352/convert-numpy-array-to-tuple
+        #pdb.set_trace()
+        tuple1=tuple(map(tuple, img)) #https://stackoverflow.com/questions/10016352/convert-numpy-array-to-tuple
         tuple2=tuple(map(tuple, punto_elegido))
-        value=cv.pointPolygonTest(tuple1,tuple2,False)
-        if(value==1):
-            print("NONONONONO")
+        #value=cv.pointPolygonTest(tuple1,tuple2,False)
+        #if(value==1):
+            #print("NONONONONO")
             
 #---------------------------------------------------------------------
 class seguidor:
