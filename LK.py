@@ -89,8 +89,8 @@ def dibujo_puntos_nc(recortes,n,punto_elegido,cap,r,contours):
         font     = cv.FONT_HERSHEY_COMPLEX_SMALL
         bottomLeftCornerOfText = (r[i][0],r[i][1])
         fontScale    = 1 
-        fontColor    = (255,255,255) 
-        lineType    = 2
+        fontColor    = (0,0,0) 
+        lineType    = 1
         cv.putText(frame,"{:.2f}".format(punto_elegido[i][0][0][0]), 
         bottomLeftCornerOfText, 
         font, 
