@@ -91,7 +91,7 @@ def dibujo_puntos_nc(recortes,n,punto_elegido,cap,r,contours):
         fontScale    = 1 
         fontColor    = (255,255,255) 
         lineType    = 2
-        cv.putText(frame,"{:.2f}".format(punto_elegido[i][0][0][i]), 
+        cv.putText(frame,"{:.2f}".format(punto_elegido[i][0][0][0]), 
         bottomLeftCornerOfText, 
         font, 
         fontScale, 
@@ -131,7 +131,7 @@ class seguidor:
 		
 		
 		if(metod=='--lk'):
-			lk_params = dict( winSize  = (500, 500),maxLevel = 20,criteria = (cv.TERM_CRITERIA_EPS | cv.TERM_CRITERIA_COUNT, 10, 0.03))
+			lk_params = dict( winSize  = (500, 500),maxLevel = 20,criteria = (cv.TERM_CRITERIA_EPS | cv.TERM_CRITERIA_COUNT, 100, 0.003))
 			feature_params = dict( maxCorners = 500,qualityLevel = 0.3,minDistance = 7,blockSize = 7 )
 			return(lk_params,feature_params)
 		else:
