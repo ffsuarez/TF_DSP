@@ -96,25 +96,27 @@ def dibujo_puntos_nc(recortes,n,punto_elegido,cap,r,contours):
         font, 
         fontScale, 
         fontColor, 
+        lineType)
+        cv.putText(frame,"          {:.2f}".format(punto_elegido[i][0][0][1]), 
+        bottomLeftCornerOfText, 
+        font, 
+        fontScale, 
+        fontColor, 
         lineType) 
+
         analizo_objeto(punto_elegido,img,n)        
     cv.imshow('testing',frame)
 	
 
 #---------------------------------------------------------------------
 def dibujo_puntos(recortes,n,punto_elegido):
-	print("prueba")
+	pass
 
 #---------------------------------------------------------------------
 def analizo_objeto(punto_elegido,img,n):
-    for i in range(n):
-        #pdb.set_trace()
-        tuple1=tuple(map(tuple, img)) #https://stackoverflow.com/questions/10016352/convert-numpy-array-to-tuple
-        tuple2=tuple(map(tuple, punto_elegido))
-        #value=cv.pointPolygonTest(tuple1,tuple2,False)
-        #if(value==1):
-            #print("NONONONONO")
-            
+    #pdb.set_trace()    
+    #img es numpy nd array
+    pass
 #---------------------------------------------------------------------
 class seguidor:
 		
