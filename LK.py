@@ -210,6 +210,15 @@ class seguidor:
             color_pred_hsv=cv.cvtColor(color_pred,cv.COLOR_BGR2HSV)
             min[i]=[color_pred_hsv[0][0][0],100,100]
             max[i]=[color_pred_hsv[0][0][0],255,255]
+        #piso los valores anteriores para obtener ROIS
+        cv.destroyAllWindows()
+        print('Seleccione ROIS')
+        ra=[None]*n
+        recortes=[None]*n
+        objeto=[None]*n
+        mask=[None]*n
+        
+
 
 
 #---------------------------------------------------------------------
