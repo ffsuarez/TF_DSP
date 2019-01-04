@@ -105,7 +105,7 @@ def dibujo_puntos_nc(recortes,n,punto_elegido,cap,r,contours):
         lineType) 
 
         analizo_objeto(punto_elegido,img,n)        
-    cv.imshow('testing',frame)
+    cv.imshow('testing',frame)    
 	
 
 #---------------------------------------------------------------------
@@ -161,8 +161,7 @@ class seguidor:
             for i in range(n):
                     r[i]=puntos_objeto(frame)
                     #pdb.set_trace()
-                    puntos.append(r[i])
-                    cv.destroyAllWindows()
+                    puntos.append(r[i])                    
                     if(color=='--color'):
                         recortes[i]=hsv[int(r[i][1]):int(r[i][1]+r[i][3]), int(r[i][0]):int(r[i][0]+r[i][2])]
                     elif(color=='--nocolor'):
@@ -177,6 +176,8 @@ class seguidor:
                         cx[i]=float(momentos[i]['m10']/momentos[i]['m00'])
                         cy[i]=float(momentos[i]['m01']/momentos[i]['m00'])
                         punto_elegido[i]=np.array([[[cx[i],cy[i]]]],np.float32)
+                        cv.imshow("{:d}".format(i),recortes[i])
+            cv.destroyWindow('ROI selector')
             if(color=='--nocolor'):
                 while(True):
                     dibujo_puntos_nc(recortes,n,punto_elegido,cap,r,contours)					
