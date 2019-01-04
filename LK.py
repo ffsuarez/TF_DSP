@@ -33,6 +33,7 @@ Donde: [--tecnica] decide cual tecnica tomar, Lucas Kanade o Shi-Tomasi
 
 
 
+#https://robologs.net/2017/08/22/tutorial-de-opencv-python-tracking-de-objetos-con-el-metodo-de-lucas-kanade/
 
 #http://pyspanishdoc.sourceforge.net/lib/module-getopt.html	   
 #https://www.digitalocean.com/community/tutorials/how-to-use-the-python-debugger
@@ -82,8 +83,7 @@ def dibujo_puntos_nc(recortes,n,punto_elegido,cap,r,contours):
     for i in range(n):
         for k in punto_elegido[i]:
             cv.circle(img[i],tuple(k[0]), 3, (0,0,255), -1)
-            recortes[i]=img_gray[i].copy()
-           
+            recortes[i]=img_gray[i].copy()           
             frame[int(r[i][1]):int(r[i][1]+r[i][3]), int(r[i][0]):int(r[i][0]+r[i][2])]=img[i]
         #https://stackoverflow.com/questions/48829532/module-cv2-cv2-has-no-attribute-puttext
         font     = cv.FONT_HERSHEY_COMPLEX_SMALL
@@ -120,76 +120,78 @@ def analizo_objeto(punto_elegido,img,n):
 #---------------------------------------------------------------------
 class seguidor:
 		
-	def __init__(self,video_src):
-	
-		try:
-			cap=cv.VideoCapture(video_src)                            
-		except:
-			cap=cv.VideoCapture(0)
-		return(cap)
+    def __init__(self,video_src):
+    
+            try:
+                    cap=cv.VideoCapture(video_src)                            
+            except:
+                    cap=cv.VideoCapture(0)
+            return(cap)
 
 
-	def opciones(self,metod):
-		
-		
-		if(metod=='--lk'):
-			lk_params = dict( winSize  = (500, 500),maxLevel = 20,criteria = (cv.TERM_CRITERIA_EPS | cv.TERM_CRITERIA_COUNT, 10, 0.03))
-			feature_params = dict( maxCorners = 500,qualityLevel = 0.3,minDistance = 7,blockSize = 7 )
-			return(lk_params,feature_params)
-		else:
-			print('No se reconoce opcion metod:',metod)
-			print('  O existe problema con la camara')
-			sys.exit(1)
-			
-	
-	def run (self,puntos,cap,n,color):
-            print('Comenzando trabajo')
-            _,frame=cap.read()
-            kernel = cv.getStructuringElement(cv.MORPH_ELLIPSE,(5,5))
-            contours=[None]*n
-            maximo=[None]*n
-            momentos=[None]*n
-            cx=[None]*n
-            cy=[None]*n
-            punto_elegido=[None]*n
-            r=[None]*n
-            if(color=='--color'):
-                    hsv=cv.cvtColor(frame,cv.COLOR_BGR2HSV)
-            elif(color=='--nocolor'):
-                    frame_gray=cv.cvtColor(frame,cv.COLOR_BGR2GRAY)
-            recortes=[None]*n
-            for i in range(n):
-                    r[i]=puntos_objeto(frame)
-                    #pdb.set_trace()
-                    puntos.append(r[i])                    
-                    if(color=='--color'):
-                        recortes[i]=hsv[int(r[i][1]):int(r[i][1]+r[i][3]), int(r[i][0]):int(r[i][0]+r[i][2])]
-                    elif(color=='--nocolor'):
-                        recortes[i]=frame_gray[int(r[i][1]):int(r[i][1]+r[i][3]), int(r[i][0]):int(r[i][0]+r[i][2])]
-                        recortes[i]=cv.adaptiveThreshold(recortes[i],255,cv.ADAPTIVE_THRESH_GAUSSIAN_C,cv.THRESH_BINARY,11,2)
-                        recortes[i] = cv.morphologyEx(recortes[i], cv.MORPH_OPEN, kernel)
-                        recortes[i] = cv.morphologyEx(recortes[i], cv.MORPH_CLOSE, kernel)
-                        recortes[i]=cv.bitwise_not(recortes[i])
-                        _,contours[i],_=cv.findContours(recortes[i], cv.RETR_CCOMP, cv.CHAIN_APPROX_TC89_KCOS)
-                        maximo[i]=max(contours[i], key = cv.contourArea)
-                        momentos[i] = cv.moments(maximo[i])
-                        cx[i]=float(momentos[i]['m10']/momentos[i]['m00'])
-                        cy[i]=float(momentos[i]['m01']/momentos[i]['m00'])
-                        punto_elegido[i]=np.array([[[cx[i],cy[i]]]],np.float32)
-                        cv.imshow("{:d}".format(i),recortes[i])
-            cv.destroyWindow('ROI selector')
-            if(color=='--nocolor'):
-                while(True):
-                    dibujo_puntos_nc(recortes,n,punto_elegido,cap,r,contours)					
-                    tecla = cv.waitKey(5) & 0xFF
-                    if tecla == 27:
-                        break                    
-            elif(color=='--color'):
+    def opciones(self,metod):
+            
+            
+            if(metod=='--lk'):
+                    lk_params = dict( winSize  = (500, 500),maxLevel = 20,criteria = (cv.TERM_CRITERIA_EPS | cv.TERM_CRITERIA_COUNT, 10, 0.03))
+                    feature_params = dict( maxCorners = 500,qualityLevel = 0.3,minDistance = 7,blockSize = 7 )
+                    return(lk_params,feature_params)
+            else:
+                    print('No se reconoce opcion metod:',metod)
+                    print('  O existe problema con la camara')
+                    sys.exit(1)
+                    
+    
+    def run (self,puntos,cap,n,color):
+        print('Comenzando trabajo')
+        _,frame=cap.read()
+        kernel = cv.getStructuringElement(cv.MORPH_ELLIPSE,(5,5))
+        contours=[None]*n
+        maximo=[None]*n
+        momentos=[None]*n
+        cx=[None]*n
+        cy=[None]*n
+        punto_elegido=[None]*n
+        r=[None]*n
+        #if(color=='--color'):
+                #hsv=cv.cvtColor(frame,cv.COLOR_BGR2HSV)
+        #elif(color=='--nocolor'):
+        frame_gray=cv.cvtColor(frame,cv.COLOR_BGR2GRAY)
+        recortes=[None]*n
+        for i in range(n):
+                r[i]=puntos_objeto(frame)
                 #pdb.set_trace()
-                print("prueba")
-                 
-                
-                
+                puntos.append(r[i])                    
+                #if(color=='--color'):
+                    #recortes[i]=hsv[int(r[i][1]):int(r[i][1]+r[i][3]), int(r[i][0]):int(r[i][0]+r[i][2])]
+                #elif(color=='--nocolor'):
+                recortes[i]=frame_gray[int(r[i][1]):int(r[i][1]+r[i][3]), int(r[i][0]):int(r[i][0]+r[i][2])]
+                recortes[i]=cv.adaptiveThreshold(recortes[i],255,cv.ADAPTIVE_THRESH_GAUSSIAN_C,cv.THRESH_BINARY,11,2)
+                recortes[i] = cv.morphologyEx(recortes[i], cv.MORPH_OPEN, kernel)
+                recortes[i] = cv.morphologyEx(recortes[i], cv.MORPH_CLOSE, kernel)
+                recortes[i]=cv.bitwise_not(recortes[i])
+                _,contours[i],_=cv.findContours(recortes[i], cv.RETR_CCOMP, cv.CHAIN_APPROX_TC89_KCOS)
+                maximo[i]=max(contours[i], key = cv.contourArea)
+                momentos[i] = cv.moments(maximo[i])
+                cx[i]=float(momentos[i]['m10']/momentos[i]['m00'])
+                cy[i]=float(momentos[i]['m01']/momentos[i]['m00'])
+                punto_elegido[i]=np.array([[[cx[i],cy[i]]]],np.float32)
+                cv.imshow("{:d}".format(i),recortes[i])
+        cv.destroyWindow('ROI selector')
+        #if(color=='--nocolor'):
+        while(True):
+            dibujo_puntos_nc(recortes,n,punto_elegido,cap,r,contours)					
+            tecla = cv.waitKey(5) & 0xFF
+            if tecla == 27:
+                break                    
+        #elif(color=='--color'):
+            #pdb.set_trace()
+            #print("prueba")
+             
+            
+    def runcolor (self,puntos,cap,n,color):
+        pdb.set_trace()
+        
                 
             
 
@@ -223,8 +225,11 @@ if __name__=='__main__':
 	seguidor.opciones(None,metodo)
 	cap=seguidor.__init__(None,video_src)
 	_,frame=cap.read()	
-	while(tec_esc != 27):
-		seguidor.run(None,puntos,cap,n,color)
-		#cv.namedWindow('Test Key') #necesaria para que waitkey funcione bien
-		tec_esc=cv.waitKey(0)
+	while(tec_esc != 27):            
+            if(color=='--nocolor'):
+                seguidor.run(None,puntos,cap,n,color)
+            elif(color=='--color'):
+                seguidor.runcolor(None,puntos,cap,n,color)
+            #cv.namedWindow('Test Key') #necesaria para que waitkey funcione bien
+            tec_esc=cv.waitKey(0)
 	cv.destroyAllWindows()
