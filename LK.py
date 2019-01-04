@@ -190,7 +190,7 @@ class seguidor:
              
             
     def runcolor (self,puntos,cap,n,color):
-        pdb.set_trace()
+        #pdb.set_trace()
         _,frame=cap.read()
         hsv=cv.cvtColor(frame,cv.COLOR_BGR2HSV)
         #esp=sys.argv[5]
@@ -217,6 +217,14 @@ class seguidor:
         recortes=[None]*n
         objeto=[None]*n
         mask=[None]*n
+        #elimino ruido
+        kernel=cv.getStructuringElement(cv.MORPH_ELLIPSE,(5,5))        
+        contours=[None]*n        
+        for i in range(n):
+            mask[i]=cv.inRange(hsv, np.uint8(min[i]), np.uint8(max[i]))
+            pdb.set_trace()
+            _,contours[i],_=cv.findContours(mask[i], cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
+        
         
 
 
