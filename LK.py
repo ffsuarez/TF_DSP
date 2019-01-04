@@ -171,6 +171,7 @@ class seguidor:
                 recortes[i] = cv.morphologyEx(recortes[i], cv.MORPH_CLOSE, kernel)
                 recortes[i]=cv.bitwise_not(recortes[i])
                 _,contours[i],_=cv.findContours(recortes[i], cv.RETR_CCOMP, cv.CHAIN_APPROX_TC89_KCOS)
+                pdb.set_trace()
                 maximo[i]=max(contours[i], key = cv.contourArea)
                 momentos[i] = cv.moments(maximo[i])
                 cx[i]=float(momentos[i]['m10']/momentos[i]['m00'])
@@ -208,22 +209,37 @@ class seguidor:
             #https://opencv-python-tutroals.readthedocs.io/en/latest/py_tutorials/py_imgproc/py_colorspaces/py_colorspaces.html
             color_pred=np.uint8([[color_predominante]])
             color_pred_hsv=cv.cvtColor(color_pred,cv.COLOR_BGR2HSV)
-            min[i]=[color_pred_hsv[0][0][0],100,100]
-            max[i]=[color_pred_hsv[0][0][0],255,255]
+            min[i]=[color_pred_hsv[0][0][0]-15,0,0]
+            max[i]=[color_pred_hsv[0][0][0]+15,255,255]
         #piso los valores anteriores para obtener ROIS
         cv.destroyAllWindows()
         print('Seleccione ROIS')
-        ra=[None]*n
-        recortes=[None]*n
-        objeto=[None]*n
-        mask=[None]*n
+        rb=[None]*n
+        recortes2=[None]*n        
+        #mask=[None]*n
         #elimino ruido
         kernel=cv.getStructuringElement(cv.MORPH_ELLIPSE,(5,5))        
-        contours=[None]*n        
+        contours=[None]*n
+        maximo=[None]*n
+        momentos=[None]*n
+        cx=[None]*n
+        cy=[None]*n
+        punto_elegido=[None]*n
         for i in range(n):
-            mask[i]=cv.inRange(hsv, np.uint8(min[i]), np.uint8(max[i]))
+            rb[i]=puntos_objeto(frame)
+            objeto[i]=hsv[int(rb[i][1]):int(rb[i][1]+rb[i][3]), int(rb[i][0]):int(rb[i][0]+rb[i][2])]
+            objeto[i] = cv.morphologyEx(objeto[i],cv.MORPH_OPEN,kernel)
+            objeto[i] = cv.morphologyEx(objeto[i],cv.MORPH_CLOSE,kernel)
             pdb.set_trace()
-            _,contours[i],_=cv.findContours(mask[i], cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
+            objeto[i]=cv.inRange(objeto[i], np.array(min[i]), np.array(max[i]))            
+            _,con[i],_=cv.findContours(objeto[i], cv.RETR_CCOMP, cv.CHAIN_APPROX_TC89_KCOS)
+            maximo[i]=max(con[i], key = cv.contourArea)
+            momentos[i] = cv.moments(maximo[i])
+            cx[i] = float(momentos[i]['m10']/momentos[i]['m00'])
+            cy[i]= float(momentos[i]['m01']/momentos[i]['m00'])
+            punto_elegido[i]= np.array([[[cx[i],cy[i]]]],np.float32)
+            cv.imshow('test',objeto[0])
+        frame_anterior = cv.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         
         
 
