@@ -24,13 +24,13 @@ Recordar realizar la aplicación de los comandos
 
 Como se pretende que sea el uso:
 
-LK.py [--tecnica<=--lk| --shi] [<fuente_video>] [n_objetos] [--color<= --color --nocolor]
+LK.py [--tecnica<=--lk| --shi] [<fuente_video>] [n_objetos] [--color<= --color --nocolor] [--especificacion<= -r  -b  -g  -x]
 
 Donde: [--tecnica] decide cual tecnica tomar, Lucas Kanade o Shi-Tomasi
        [<fuente_video>] elige un archivo de video y lo lee, sino toma la camara
-	   [n_objetos] es el numero de objetos a seguir
-	   [--color] decide agregar la condicion de seguir al objeto si posee determinado color
-
+       [n_objetos] es el numero de objetos a seguir
+       [--color] decide agregar la condicion de seguir al objeto si posee determinado color
+       [--especificacion] decide si seguir color rojo,azul,verde o especifica
 
 
 #https://robologs.net/2017/08/22/tutorial-de-opencv-python-tracking-de-objetos-con-el-metodo-de-lucas-kanade/
@@ -191,15 +191,41 @@ class seguidor:
             
     def runcolor (self,puntos,cap,n,color):
         pdb.set_trace()
-        
-                
-            
+        _,frame=cap.read()
+        hsv=cv.cvtColor(frame,cv.COLOR_BGR2HSV)
+        #esp=sys.argv[5]
+        ra=[None]*n
+        recortes=[None]*n
+        objeto=[None]*n
+        min=[None]*n
+        max=[None]*n
+        for i in range(n):
+            print('Encierre el objeto a seguir')
+            ra[i]=puntos_objeto(frame)
+            #puntos.append(ra[i])
+            objeto[i]=hsv[int(ra[i][1]):int(ra[i][1]+ra[i][3]), int(ra[i][0]):int(ra[i][0]+ra[i][2])]
+            color_predominante=buscar_rgb(objeto[i])
+            #https://opencv-python-tutroals.readthedocs.io/en/latest/py_tutorials/py_imgproc/py_colorspaces/py_colorspaces.html
+            color_pred=np.uint8([[color_predominante]])
+            color_pred_hsv=cv.cvtColor(color_pred,cv.COLOR_BGR2HSV)
+            min[i]=[color_pred_hsv[0][0][0],100,100]
+            max[i]=[color_pred_hsv[0][0][0],255,255]
 
 
 #---------------------------------------------------------------------
+#https://stackoverflow.com/questions/50899692/most-dominant-color-in-rgb-image-opencv-numpy-python
+def buscar_rgb(img):
+    data = np.reshape(img, (-1,3))
+    print(data.shape)
+    data = np.float32(data)
 
+    criteria = (cv.TERM_CRITERIA_EPS + cv.TERM_CRITERIA_MAX_ITER, 10, 1.0)
+    flags = cv.KMEANS_RANDOM_CENTERS
+    compactness,labels,centers = cv.kmeans(data,1,None,criteria,10,flags)
 
-
+    print('Dominant color is: bgr({})'.format(centers[0].astype(np.int32)))
+    return(centers[0].astype(np.int32))
+#---------------------------------------------------------------------
 import os
 #import time
 #import msvcrt
