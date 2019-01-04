@@ -88,7 +88,7 @@ def dibujo_puntos_nc(recortes,n,punto_elegido,cap,r,contours):
         #https://stackoverflow.com/questions/48829532/module-cv2-cv2-has-no-attribute-puttext
         font     = cv.FONT_HERSHEY_COMPLEX_SMALL
         bottomLeftCornerOfText = (r[i][0],r[i][1])
-        fontScale    = 1 
+        fontScale    = 0.4 
         fontColor    = (0,0,0) 
         lineType    = 1
         cv.putText(frame,"{:.2f}".format(punto_elegido[i][0][0][0]), 
@@ -97,7 +97,7 @@ def dibujo_puntos_nc(recortes,n,punto_elegido,cap,r,contours):
         fontScale, 
         fontColor, 
         lineType)
-        cv.putText(frame,"          {:.2f}".format(punto_elegido[i][0][0][1]), 
+        cv.putText(frame,"       {:.2f}".format(punto_elegido[i][0][0][1]), 
         bottomLeftCornerOfText, 
         font, 
         fontScale, 
