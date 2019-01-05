@@ -117,7 +117,9 @@ def analizo_objeto(punto_elegido,img,n):
     #pdb.set_trace()    
     #img es numpy nd array
     pass
+
 #---------------------------------------------------------------------
+
 class seguidor:
 		
     def __init__(self,video_src):
@@ -171,6 +173,7 @@ class seguidor:
                 recortes[i] = cv.morphologyEx(recortes[i], cv.MORPH_CLOSE, kernel)
                 recortes[i]=cv.bitwise_not(recortes[i])
                 _,contours[i],_=cv.findContours(recortes[i], cv.RETR_CCOMP, cv.CHAIN_APPROX_TC89_KCOS)
+                pdb.set_trace()
                 maximo[i]=max(contours[i], key = cv.contourArea)
                 momentos[i] = cv.moments(maximo[i])
                 cx[i]=float(momentos[i]['m10']/momentos[i]['m00'])
@@ -189,7 +192,7 @@ class seguidor:
             #print("prueba")
              
             
-    def runcolor (self,puntos,cap,n,color):
+    def color (self,puntos,cap,n,color,min,max):
         #pdb.set_trace()
         _,frame=cap.read()
         hsv=cv.cvtColor(frame,cv.COLOR_BGR2HSV)
@@ -197,10 +200,10 @@ class seguidor:
         ra=[None]*n
         recortes=[None]*n
         objeto=[None]*n
-        min=[None]*n
-        max=[None]*n
+##        min=[None]*n
+##        max=[None]*n
         for i in range(n):
-            print('Encierre el objeto a seguir')
+            print('***SELECCIONE UNA PARTE DEL OBJETO. PARA DETERMINAR COLOR A SEGUIR****')
             ra[i]=puntos_objeto(frame)
             #puntos.append(ra[i])
             objeto[i]=hsv[int(ra[i][1]):int(ra[i][1]+ra[i][3]), int(ra[i][0]):int(ra[i][0]+ra[i][2])]
@@ -208,22 +211,44 @@ class seguidor:
             #https://opencv-python-tutroals.readthedocs.io/en/latest/py_tutorials/py_imgproc/py_colorspaces/py_colorspaces.html
             color_pred=np.uint8([[color_predominante]])
             color_pred_hsv=cv.cvtColor(color_pred,cv.COLOR_BGR2HSV)
-            min[i]=[color_pred_hsv[0][0][0],100,100]
-            max[i]=[color_pred_hsv[0][0][0],255,255]
+            min[i]=[color_pred_hsv[0][0][0]-15,0,0]
+            max[i]=[color_pred_hsv[0][0][0]+15,255,255]
+            print("El color a seguir en HSV es"+" "+str(color_pred_hsv[0][0]))
         #piso los valores anteriores para obtener ROIS
         cv.destroyAllWindows()
+        return(min,max)
+
+
+    def runcolor(self,puntos,cap,n,min,max):
         print('Seleccione ROIS')
-        ra=[None]*n
-        recortes=[None]*n
-        objeto=[None]*n
-        mask=[None]*n
+        _,frame=cap.read()
+        hsv=cv.cvtColor(frame,cv.COLOR_BGR2HSV)
+        rb=[None]*n
+        recortes2=[None]*n        
+        #mask=[None]*n
         #elimino ruido
         kernel=cv.getStructuringElement(cv.MORPH_ELLIPSE,(5,5))        
-        contours=[None]*n        
+        con=[None]*n
+        maximo=[None]*n
+        momentos=[None]*n
+        cx=[None]*n
+        cy=[None]*n
+        punto_elegido=[None]*n
         for i in range(n):
-            mask[i]=cv.inRange(hsv, np.uint8(min[i]), np.uint8(max[i]))
-            pdb.set_trace()
-            _,contours[i],_=cv.findContours(mask[i], cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
+            rb[i]=puntos_objeto(frame)
+            recortes2[i]=hsv[int(rb[i][1]):int(rb[i][1]+rb[i][3]), int(rb[i][0]):int(rb[i][0]+rb[i][2])]
+            recortes2[i] = cv.morphologyEx(recortes2[i],cv.MORPH_OPEN,kernel)
+            recortes2[i] = cv.morphologyEx(recortes2[i],cv.MORPH_CLOSE,kernel)
+            pdb.set_trace()            
+            recortes2[i]=cv.inRange(recortes2[i], np.array(min[i]), np.array(max[i]))            
+            _,con[i],_=cv.findContours(recortes2[i], cv.RETR_CCOMP, cv.CHAIN_APPROX_TC89_KCOS)
+            maximo[i]=max(con[i], key = cv.contourArea)
+            momentos[i] = cv.moments(maximo[i])
+            cx[i] = float(momentos[i]['m10']/momentos[i]['m00'])
+            cy[i]= float(momentos[i]['m01']/momentos[i]['m00'])
+            punto_elegido[i]= np.array([[[cx[i],cy[i]]]],np.float32)
+            cv.imshow('test',objeto[0])
+        frame_anterior = cv.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         
         
 
@@ -264,6 +289,8 @@ if __name__=='__main__':
 	#video_src=0
 	#n=2
 	puntos=[None]*n
+	min=[None]*n
+	max=[None]*n
 	tec_esc='a'
 	seguidor.opciones(None,metodo)
 	cap=seguidor.__init__(None,video_src)
@@ -272,7 +299,10 @@ if __name__=='__main__':
             if(color=='--nocolor'):
                 seguidor.run(None,puntos,cap,n,color)
             elif(color=='--color'):
-                seguidor.runcolor(None,puntos,cap,n,color)
+                seguidor.color(None,puntos,cap,n,color,min,max)
+                pdb.set_trace()
+                #cv.imshow('test',frame)
+                seguidor.runcolor(None,puntos,cap,n,min,max)
             #cv.namedWindow('Test Key') #necesaria para que waitkey funcione bien
             tec_esc=cv.waitKey(0)
 	cv.destroyAllWindows()
