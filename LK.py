@@ -189,30 +189,30 @@ def seleccion(puntos,cap,n):
         print('Hubo un error')
         sys.exit(1)
     r=[None]*n
-    recortes=[None]*n
-    recortes_hsv=[None]*n
+    #recortes=[None]*n
+    #recortes_hsv=[None]*n
     res=[None]*n        
-    for i in range(n):
-        r[i]=puntos_objeto(frame)
-        recortes[i]=frame[int(r[i][1]):int(r[i][1]+r[i][3]), int(r[i][0]):int(r[i][0]+r[i][2])]
-        recortes_hsv[i]=cv.cvtColor(recortes[i],cv.COLOR_BGR2HSV)
-        cv.imshow('abc',recortes[0])
-        while(True):
-            h=cv.getTrackbarPos('H','Color HSV')
-            s=cv.getTrackbarPos('S','Color HSV')
-            v=cv.getTrackbarPos('V','Color HSV')
+    #for i in range(n):
+        #r[i]=puntos_objeto(frame)
+        #recortes[i]=frame[int(r[i][1]):int(r[i][1]+r[i][3]), int(r[i][0]):int(r[i][0]+r[i][2])]
+    hsv=cv.cvtColor(frame,cv.COLOR_BGR2HSV)
+        #cv.imshow('abc',recortes[0])
+    while(True):
+        h=cv.getTrackbarPos('H','Color HSV')
+        s=cv.getTrackbarPos('S','Color HSV')
+        v=cv.getTrackbarPos('V','Color HSV')
 
-            lwr=np.array([h,s,v])
-            upr=np.array([h+5,255,255])
+        lwr=np.array([h,s,v])
+        upr=np.array([h+5,255,255])
 
-            mask= cv.inRange(recortes_hsv[i],lwr,upr)
+        mask= cv.inRange(hsv,lwr,upr)
             #res= cv.bitwise_and(recortes[i],recortes[i],mask=mask)
             #_,res=cv.threshold(res,50,255,cv.THRESH_BINARY)
-            cv.imshow('Seleccion',mask)
-            if cv.waitKey(20) & 0xFF == 27:
-                break
-    cv.destroyAllWindows()
-    return(r,mask)
+        cv.imshow('Seleccion',mask)
+        if cv.waitKey(20) & 0xFF == 27:
+            break
+    cv.destroyWindow('Seleccion')
+    return(mask)
                 
             
 
@@ -250,19 +250,28 @@ if __name__=='__main__':
 	seguidor.opciones(None,metodo)
 	cap=seguidor.__init__(None,video_src)
 	_,frame=cap.read()
-	img=None
+	img=[np.zeros(frame.shape)]*n
+	lala=None
+	#aux=[None]*n#cv.imshow('negro',img)
 	while(tec_esc != 27):            
             if(color=='--nocolor'):
                 seguidor.run(None,puntos,cap,n,color,img)
             elif(color=='--color'):
                 if(puntos!=None):
-                    (puntos,img)=seleccion(puntos,cap,n)
+                    for i in range(n):
+                        img[i]=seleccion(puntos,cap,n)
+                    cv.imshow('imagen 1',img[0])
+                    cv.imshow('imagen 2',img[1])
+                    pdb.set_trace()
+                    for i in range(n-1):
+                        lala=cv.add(img[i],img[i-1])
+                    #img[int(puntos[i][1]):int(puntos[i][1]+puntos[i][3]), int(puntos[i][0]):int(puntos[i][0]+puntos[i][2])]=aux[i]
                     while(True):
-                        cv.imshow('def',img)
+                        cv.imshow('def',lala)
                         if cv.waitKey(20) & 0xFF == 27:
                             break                        
                     pdb.set_trace()
-                seguidor.run(None,puntos,cap,n,color,img)
+                seguidor.run(None,puntos,cap,n,color,img[i])
             #cv.namedWindow('Test Key') #necesaria para que waitkey funcione bien
             tec_esc=cv.waitKey(0)
 	cv.destroyAllWindows()
