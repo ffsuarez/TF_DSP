@@ -251,7 +251,8 @@ if __name__=='__main__':
 	cap=seguidor.__init__(None,video_src)
 	_,frame=cap.read()
 	img=[np.zeros(frame.shape)]*n
-	lala=None
+	#lala=[np.zeros(frame.shape)]
+	#lala2=[np.zeros(frame.shape)]
 	#aux=[None]*n#cv.imshow('negro',img)
 	while(tec_esc != 27):            
             if(color=='--nocolor'):
@@ -260,11 +261,12 @@ if __name__=='__main__':
                 if(puntos!=None):
                     for i in range(n):
                         img[i]=seleccion(puntos,cap,n)
-                    cv.imshow('imagen 1',img[0])
-                    cv.imshow('imagen 2',img[1])
-                    pdb.set_trace()
+                    #lala=cv.add(img[n-1],img[n-2])
+                    
                     for i in range(n-1):
-                        lala=cv.add(img[i],img[i-1])
+                        img[i]=cv.add(img[i],img[i-1])
+                    lala=img[i]
+                        #lala2=cv.add(lala,lala2)
                     #img[int(puntos[i][1]):int(puntos[i][1]+puntos[i][3]), int(puntos[i][0]):int(puntos[i][0]+puntos[i][2])]=aux[i]
                     while(True):
                         cv.imshow('def',lala)
