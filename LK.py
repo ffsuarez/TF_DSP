@@ -57,19 +57,30 @@ from matplotlib import pyplot as plt
 import pdb
 
 
+#---------------------------------------------------------------------
+def nada(x):
+    #pdb.set_trace()    
+    #img es numpy nd array
+    pass
+
+
+
+
+cv.namedWindow('Color HSV')        
+cv.createTrackbar('H','Color HSV',0,360,nada)
+cv.createTrackbar('S','Color HSV',0,200,nada)
+cv.createTrackbar('V','Color HSV',0,1,nada)
 
 
 
 
 #---------------------------------------------------------------------
 def puntos_objeto(frame):
-    r=cv.selectROI(frame)
-    #pdb.set_trace()
+    r=cv.selectROI(frame)    
     return(r)
 #---------------------------------------------------------------------
 def dibujo_puntos_nc(recortes,n,punto_elegido,cap,r,contours):
-    _,frame=cap.read()
-    #pdb.set_trace()
+    _,frame=cap.read()    
     st=[None]*n
     err=[None]*n
     img=[None]*n
@@ -78,8 +89,6 @@ def dibujo_puntos_nc(recortes,n,punto_elegido,cap,r,contours):
         img[j]=frame[int(r[j][1]):int(r[j][1]+r[j][3]), int(r[j][0]):int(r[j][0]+r[j][2])]
         img_gray[j]=cv.cvtColor(img[j],cv.COLOR_BGR2GRAY)
         punto_elegido[j],st[j],err[j]= cv.calcOpticalFlowPyrLK(recortes[j],img_gray[j],punto_elegido[j],None, **seguidor.opciones(None,metodo)[0])
-        #_,frame2=cap.read()
-        #pdb.set_trace()
     for i in range(n):
         for k in punto_elegido[i]:
             cv.circle(img[i],tuple(k[0]), 3, (0,0,255), -1)
@@ -104,19 +113,11 @@ def dibujo_puntos_nc(recortes,n,punto_elegido,cap,r,contours):
         fontColor, 
         lineType) 
 
-        analizo_objeto(punto_elegido,img,n)        
+        #analizo_objeto(punto_elegido,img,n)        
     cv.imshow('testing',frame)    
 	
 
-#---------------------------------------------------------------------
-def dibujo_puntos(recortes,n,punto_elegido):
-	pass
 
-#---------------------------------------------------------------------
-def analizo_objeto(punto_elegido,img,n):
-    #pdb.set_trace()    
-    #img es numpy nd array
-    pass
 #---------------------------------------------------------------------
 class seguidor:
 		
@@ -142,7 +143,7 @@ class seguidor:
                     sys.exit(1)
                     
     
-    def run (self,puntos,cap,n,color):
+    def run (self,puntos,cap,n,color,img):
         print('Comenzando trabajo')
         _,frame=cap.read()
         kernel = cv.getStructuringElement(cv.MORPH_ELLIPSE,(5,5))
@@ -153,25 +154,19 @@ class seguidor:
         cy=[None]*n
         punto_elegido=[None]*n
         r=[None]*n
-        #if(color=='--color'):
-                #hsv=cv.cvtColor(frame,cv.COLOR_BGR2HSV)
-        #elif(color=='--nocolor'):
+
         frame_gray=cv.cvtColor(frame,cv.COLOR_BGR2GRAY)
         recortes=[None]*n
         for i in range(n):
                 r[i]=puntos_objeto(frame)
-                #pdb.set_trace()
                 puntos.append(r[i])                    
-                #if(color=='--color'):
-                    #recortes[i]=hsv[int(r[i][1]):int(r[i][1]+r[i][3]), int(r[i][0]):int(r[i][0]+r[i][2])]
-                #elif(color=='--nocolor'):
                 recortes[i]=frame_gray[int(r[i][1]):int(r[i][1]+r[i][3]), int(r[i][0]):int(r[i][0]+r[i][2])]
                 recortes[i]=cv.adaptiveThreshold(recortes[i],255,cv.ADAPTIVE_THRESH_GAUSSIAN_C,cv.THRESH_BINARY,11,2)
                 recortes[i] = cv.morphologyEx(recortes[i], cv.MORPH_OPEN, kernel)
                 recortes[i] = cv.morphologyEx(recortes[i], cv.MORPH_CLOSE, kernel)
                 recortes[i]=cv.bitwise_not(recortes[i])
                 _,contours[i],_=cv.findContours(recortes[i], cv.RETR_CCOMP, cv.CHAIN_APPROX_TC89_KCOS)
-                pdb.set_trace()
+                #pdb.set_trace()
                 maximo[i]=max(contours[i], key = cv.contourArea)
                 momentos[i] = cv.moments(maximo[i])
                 cx[i]=float(momentos[i]['m10']/momentos[i]['m00'])
@@ -179,69 +174,48 @@ class seguidor:
                 punto_elegido[i]=np.array([[[cx[i],cy[i]]]],np.float32)
                 cv.imshow("{:d}".format(i),recortes[i])
         cv.destroyWindow('ROI selector')
-        #if(color=='--nocolor'):
+
         while(True):
             dibujo_puntos_nc(recortes,n,punto_elegido,cap,r,contours)					
             tecla = cv.waitKey(5) & 0xFF
             if tecla == 27:
                 break                    
-        #elif(color=='--color'):
-            #pdb.set_trace()
-            #print("prueba")
-             
+         
+
+def seleccion(puntos,cap,n):
+    #pdb.set_trace()
+    ret,frame=cap.read()
+    if(ret==False):
+        print('Hubo un error')
+        sys.exit(1)
+    r=[None]*n
+    recortes=[None]*n
+    recortes_hsv=[None]*n
+    res=[None]*n        
+    for i in range(n):
+        r[i]=puntos_objeto(frame)
+        recortes[i]=frame[int(r[i][1]):int(r[i][1]+r[i][3]), int(r[i][0]):int(r[i][0]+r[i][2])]
+        recortes_hsv[i]=cv.cvtColor(recortes[i],cv.COLOR_BGR2HSV)
+        cv.imshow('abc',recortes[0])
+        while(True):
+            h=cv.getTrackbarPos('H','Color HSV')
+            s=cv.getTrackbarPos('S','Color HSV')
+            v=cv.getTrackbarPos('V','Color HSV')
+
+            lwr=np.array([h,s,v])
+            upr=np.array([h+5,255,255])
+
+            mask= cv.inRange(recortes_hsv[i],lwr,upr)
+            #res= cv.bitwise_and(recortes[i],recortes[i],mask=mask)
+            #_,res=cv.threshold(res,50,255,cv.THRESH_BINARY)
+            cv.imshow('Seleccion',mask)
+            if cv.waitKey(20) & 0xFF == 27:
+                break
+    cv.destroyAllWindows()
+    return(r,mask)
+                
             
-    def runcolor (self,puntos,cap,n,color):
-        #pdb.set_trace()
-        _,frame=cap.read()
-        hsv=cv.cvtColor(frame,cv.COLOR_BGR2HSV)
-        #esp=sys.argv[5]
-        ra=[None]*n
-        recortes=[None]*n
-        objeto=[None]*n
-        min=[None]*n
-        max=[None]*n
-        for i in range(n):
-            print('Encierre el objeto a seguir')
-            ra[i]=puntos_objeto(frame)
-            #puntos.append(ra[i])
-            objeto[i]=hsv[int(ra[i][1]):int(ra[i][1]+ra[i][3]), int(ra[i][0]):int(ra[i][0]+ra[i][2])]
-            color_predominante=buscar_rgb(objeto[i])
-            #https://opencv-python-tutroals.readthedocs.io/en/latest/py_tutorials/py_imgproc/py_colorspaces/py_colorspaces.html
-            color_pred=np.uint8([[color_predominante]])
-            color_pred_hsv=cv.cvtColor(color_pred,cv.COLOR_BGR2HSV)
-            min[i]=[color_pred_hsv[0][0][0]-15,0,0]
-            max[i]=[color_pred_hsv[0][0][0]+15,255,255]
-        #piso los valores anteriores para obtener ROIS
-        cv.destroyAllWindows()
-        print('Seleccione ROIS')
-        rb=[None]*n
-        recortes2=[None]*n        
-        #mask=[None]*n
-        #elimino ruido
-        kernel=cv.getStructuringElement(cv.MORPH_ELLIPSE,(5,5))        
-        contours=[None]*n
-        maximo=[None]*n
-        momentos=[None]*n
-        cx=[None]*n
-        cy=[None]*n
-        punto_elegido=[None]*n
-        for i in range(n):
-            rb[i]=puntos_objeto(frame)
-            objeto[i]=hsv[int(rb[i][1]):int(rb[i][1]+rb[i][3]), int(rb[i][0]):int(rb[i][0]+rb[i][2])]
-            objeto[i] = cv.morphologyEx(objeto[i],cv.MORPH_OPEN,kernel)
-            objeto[i] = cv.morphologyEx(objeto[i],cv.MORPH_CLOSE,kernel)
-            pdb.set_trace()
-            objeto[i]=cv.inRange(objeto[i], np.array(min[i]), np.array(max[i]))            
-            _,con[i],_=cv.findContours(objeto[i], cv.RETR_CCOMP, cv.CHAIN_APPROX_TC89_KCOS)
-            maximo[i]=max(con[i], key = cv.contourArea)
-            momentos[i] = cv.moments(maximo[i])
-            cx[i] = float(momentos[i]['m10']/momentos[i]['m00'])
-            cy[i]= float(momentos[i]['m01']/momentos[i]['m00'])
-            punto_elegido[i]= np.array([[[cx[i],cy[i]]]],np.float32)
-            cv.imshow('test',objeto[0])
-        frame_anterior = cv.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-        
-        
+
 
 
 
@@ -260,14 +234,10 @@ def buscar_rgb(img):
     return(centers[0].astype(np.int32))
 #---------------------------------------------------------------------
 import os
-#import time
-#import msvcrt
-#from common import anorm, getsize
 
 if __name__=='__main__':
 	print(__doc__)
 	import sys,getopt
-	#opcs,args=getopt.getopt   
 	metodo=sys.argv[1]
 	video_src=sys.argv[2]
 	if (video_src=='0'):
@@ -275,20 +245,24 @@ if __name__=='__main__':
 	n=sys.argv[3]
 	n=int(n)
 	color=sys.argv[4]
-
-	#metodo='--lk'
-	#video_src=0
-	#n=2
 	puntos=[None]*n
 	tec_esc='a'
 	seguidor.opciones(None,metodo)
 	cap=seguidor.__init__(None,video_src)
-	_,frame=cap.read()	
+	_,frame=cap.read()
+	img=None
 	while(tec_esc != 27):            
             if(color=='--nocolor'):
-                seguidor.run(None,puntos,cap,n,color)
+                seguidor.run(None,puntos,cap,n,color,img)
             elif(color=='--color'):
-                seguidor.runcolor(None,puntos,cap,n,color)
+                if(puntos!=None):
+                    (puntos,img)=seleccion(puntos,cap,n)
+                    while(True):
+                        cv.imshow('def',img)
+                        if cv.waitKey(20) & 0xFF == 27:
+                            break                        
+                    pdb.set_trace()
+                seguidor.run(None,puntos,cap,n,color,img)
             #cv.namedWindow('Test Key') #necesaria para que waitkey funcione bien
             tec_esc=cv.waitKey(0)
 	cv.destroyAllWindows()
