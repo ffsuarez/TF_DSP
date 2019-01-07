@@ -66,10 +66,7 @@ def nada(x):
 
 
 
-cv.namedWindow('Color HSV')        
-cv.createTrackbar('H','Color HSV',0,360,nada)
-cv.createTrackbar('S','Color HSV',0,200,nada)
-cv.createTrackbar('V','Color HSV',0,1,nada)
+
 
 
 
@@ -185,6 +182,10 @@ class seguidor:
 def seleccion(puntos,cap,n):
     #pdb.set_trace()
     ret,frame=cap.read()
+    cv.namedWindow('Color HSV')        
+    cv.createTrackbar('H','Color HSV',0,360,nada)
+    cv.createTrackbar('S','Color HSV',0,200,nada)
+    cv.createTrackbar('V','Color HSV',0,1,nada)    
     if(ret==False):
         print('Hubo un error')
         sys.exit(1)
