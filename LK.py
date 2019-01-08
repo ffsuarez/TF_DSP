@@ -131,7 +131,7 @@ class seguidor:
             
             
             if(metod=='--lk'):
-                    lk_params = dict( winSize  = (500, 500),maxLevel = 20,criteria = (cv.TERM_CRITERIA_EPS | cv.TERM_CRITERIA_COUNT, 10, 0.03))
+                    lk_params = dict( winSize  = (500, 500),maxLevel = 20,criteria = (cv.TERM_CRITERIA_EPS | cv.TERM_CRITERIA_COUNT , 10, 0.003))
                     feature_params = dict( maxCorners = 500,qualityLevel = 0.3,minDistance = 7,blockSize = 7 )
                     return(lk_params,feature_params)
             else:
@@ -140,7 +140,7 @@ class seguidor:
                     sys.exit(1)
                     
     
-    def run (self,puntos,cap,n,color,img):
+    def run (self,puntos,cap,n,color):
         print('Comenzando trabajo')
         _,frame=cap.read()
         kernel = cv.getStructuringElement(cv.MORPH_ELLIPSE,(5,5))
@@ -176,7 +176,59 @@ class seguidor:
             dibujo_puntos_nc(recortes,n,punto_elegido,cap,r,contours)					
             tecla = cv.waitKey(5) & 0xFF
             if tecla == 27:
+                break
+            
+            
+
+
+    def runcolor (self,puntos,cap,n,color,img,lala):
+        print('Comenzando trabajo')
+        _,frame=cap.read()
+        kernel = cv.getStructuringElement(cv.MORPH_ELLIPSE,(5,5))
+        contours=[None]*n
+        maximo=[None]*n
+        momentos=[None]*n
+        cx=[None]*n
+        cy=[None]*n
+        punto_elegido=[None]*n
+        r=[None]*n
+
+        #frame_gray=cv.cvtColor(frame,cv.COLOR_BGR2GRAY)
+        recortes=[None]*n
+        for i in range(n):
+                r[i]=puntos_objeto(img[i])
+                puntos.append(r[i])                    
+                recortes[i]=img[i][int(r[i][1]):int(r[i][1]+r[i][3]), int(r[i][0]):int(r[i][0]+r[i][2])]
+                recortes[i]=cv.adaptiveThreshold(recortes[i],255,cv.ADAPTIVE_THRESH_GAUSSIAN_C,cv.THRESH_BINARY,11,2)
+                recortes[i] = cv.morphologyEx(recortes[i], cv.MORPH_OPEN, kernel)
+                recortes[i] = cv.morphologyEx(recortes[i], cv.MORPH_CLOSE, kernel)
+                recortes[i]=cv.bitwise_not(recortes[i])
+                _,contours[i],_=cv.findContours(recortes[i], cv.RETR_CCOMP, cv.CHAIN_APPROX_TC89_KCOS)
+                #pdb.set_trace()
+                maximo[i]=max(contours[i], key = cv.contourArea)
+                momentos[i] = cv.moments(maximo[i])
+                cx[i]=float(momentos[i]['m10']/momentos[i]['m00'])
+                cy[i]=float(momentos[i]['m01']/momentos[i]['m00'])
+                punto_elegido[i]=np.array([[[cx[i],cy[i]]]],np.float32)
+                cv.imshow("{:d}".format(i),recortes[i])
+        cv.destroyWindow('ROI selector')
+
+        while(True):
+            dibujo_puntos_nc(recortes,n,punto_elegido,cap,r,contours)					
+            tecla = cv.waitKey(5) & 0xFF
+            if tecla == 27:
                 break                    
+
+
+
+
+
+
+
+
+
+
+
          
 
 def seleccion(puntos,cap,n):
@@ -257,7 +309,7 @@ if __name__=='__main__':
 	#aux=[None]*n#cv.imshow('negro',img)
 	while(tec_esc != 27):            
             if(color=='--nocolor'):
-                seguidor.run(None,puntos,cap,n,color,img)
+                seguidor.run(None,puntos,cap,n,color)
             elif(color=='--color'):
                 if(puntos!=None):
                     for i in range(n):
@@ -273,8 +325,8 @@ if __name__=='__main__':
                         cv.imshow('def',lala)
                         if cv.waitKey(20) & 0xFF == 27:
                             break                        
-                    pdb.set_trace()
-                seguidor.run(None,puntos,cap,n,color,img[i])
+                    #pdb.set_trace()
+                seguidor.runcolor(None,puntos,cap,n,color,img,lala)#lala
             #cv.namedWindow('Test Key') #necesaria para que waitkey funcione bien
             tec_esc=cv.waitKey(0)
 	cv.destroyAllWindows()
