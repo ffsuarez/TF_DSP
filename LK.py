@@ -216,25 +216,19 @@ class seguidor:
         while(True):
             dibujo_puntos_nc(recortes,n,punto_elegido,cap,r,contours)					
             tecla = cv.waitKey(5) & 0xFF
+            if tecla == 'r':
+                seguidor.runcolor(None,puntos,cap,n,color,img,lala)
+                pdb.set_trace()
             if tecla == 27:
                 break                    
-
-
-
-
-
-
-
-
-
-
 
          
 
 def seleccion(puntos,cap,n):
     #pdb.set_trace()
     ret,frame=cap.read()
-    cv.namedWindow('Color HSV')        
+    cv.namedWindow('Color HSV',cv.WINDOW_NORMAL)
+    cv.resizeWindow('Color HSV', 100,50)
     cv.createTrackbar('H','Color HSV',0,180,nada)
     cv.createTrackbar('S','Color HSV',0,255,nada)
     cv.createTrackbar('V','Color HSV',0,255,nada)    
@@ -274,18 +268,6 @@ def seleccion(puntos,cap,n):
 
 
 #---------------------------------------------------------------------
-#https://stackoverflow.com/questions/50899692/most-dominant-color-in-rgb-image-opencv-numpy-python
-def buscar_rgb(img):
-    data = np.reshape(img, (-1,3))
-    print(data.shape)
-    data = np.float32(data)
-
-    criteria = (cv.TERM_CRITERIA_EPS + cv.TERM_CRITERIA_MAX_ITER, 10, 1.0)
-    flags = cv.KMEANS_RANDOM_CENTERS
-    compactness,labels,centers = cv.kmeans(data,1,None,criteria,10,flags)
-
-    print('Dominant color is: bgr({})'.format(centers[0].astype(np.int32)))
-    return(centers[0].astype(np.int32))
 #---------------------------------------------------------------------
 import os
 
@@ -305,28 +287,20 @@ if __name__=='__main__':
 	cap=seguidor.__init__(None,video_src)
 	_,frame=cap.read()
 	img=[np.zeros(frame.shape)]*n
-	#lala=[np.zeros(frame.shape)]
-	#lala2=[np.zeros(frame.shape)]
-	#aux=[None]*n#cv.imshow('negro',img)
 	while(tec_esc != 27):            
             if(color=='--nocolor'):
                 seguidor.run(None,puntos,cap,n,color)
             elif(color=='--color'):
                 if(puntos!=None):
                     for i in range(n):
-                        img[i]=seleccion(puntos,cap,n)
-                    #lala=cv.add(img[n-1],img[n-2])
-                    
+                        img[i]=seleccion(puntos,cap,n)                   
                     for i in range(n-1):
                         img[i]=cv.add(img[i],img[i-1])
                     lala=img[i]
-                        #lala2=cv.add(lala,lala2)
-                    #img[int(puntos[i][1]):int(puntos[i][1]+puntos[i][3]), int(puntos[i][0]):int(puntos[i][0]+puntos[i][2])]=aux[i]
-                    while(True):
-                        cv.imshow('def',lala)
-                        if cv.waitKey(20) & 0xFF == 27:
-                            break                        
-                    #pdb.set_trace()
+##                    while(True):
+##                        cv.imshow('def',lala)
+##                        if cv.waitKey(20) & 0xFF == 27:
+##                            break                        
                 seguidor.runcolor(None,puntos,cap,n,color,img,lala)#lala
             #cv.namedWindow('Test Key') #necesaria para que waitkey funcione bien
             tec_esc=cv.waitKey(0)
