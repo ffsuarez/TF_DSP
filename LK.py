@@ -235,9 +235,9 @@ def seleccion(puntos,cap,n):
     #pdb.set_trace()
     ret,frame=cap.read()
     cv.namedWindow('Color HSV')        
-    cv.createTrackbar('H','Color HSV',0,360,nada)
-    cv.createTrackbar('S','Color HSV',0,200,nada)
-    cv.createTrackbar('V','Color HSV',0,1,nada)    
+    cv.createTrackbar('H','Color HSV',0,180,nada)
+    cv.createTrackbar('S','Color HSV',0,255,nada)
+    cv.createTrackbar('V','Color HSV',0,255,nada)    
     if(ret==False):
         print('Hubo un error')
         sys.exit(1)
@@ -257,6 +257,7 @@ def seleccion(puntos,cap,n):
 
         lwr=np.array([h,s,v])
         upr=np.array([h+5,255,255])
+        
 
         mask= cv.inRange(hsv,lwr,upr)
             #res= cv.bitwise_and(recortes[i],recortes[i],mask=mask)
