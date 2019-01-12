@@ -97,18 +97,29 @@ def dibujo_puntos_nc(recortes,n,punto_elegido,cap,r,contours):
         fontScale    = 0.4 
         fontColor    = (0,0,0) 
         lineType    = 1
-        cv.putText(frame,"{:.2f}".format(punto_elegido[i][0][0][0]), 
-        bottomLeftCornerOfText, 
-        font, 
-        fontScale, 
-        fontColor, 
-        lineType)
-        cv.putText(frame,"       {:.2f}".format(punto_elegido[i][0][0][1]), 
-        bottomLeftCornerOfText, 
-        font, 
-        fontScale, 
-        fontColor, 
-        lineType) 
+        
+        if((punto_elegido[i][0][0][0]<0)or(punto_elegido[i][0][0][1]<0)or(punto_elegido[i][0][0][1]>int(r[i][3]))or(punto_elegido[i][0][0][0]>int(r[i][2]))):
+            cv.putText(frame,"FUERA DE ROI", 
+            bottomLeftCornerOfText, 
+            font, 
+            fontScale, 
+            fontColor, 
+            lineType)
+        else:
+            cv.putText(frame,"       {:.2f}".format(punto_elegido[i][0][0][1]), 
+            bottomLeftCornerOfText, 
+            font, 
+            fontScale, 
+            fontColor, 
+            lineType)
+            cv.putText(frame,"{:.2f}".format(punto_elegido[i][0][0][0]), 
+            bottomLeftCornerOfText, 
+            font, 
+            fontScale, 
+            fontColor, 
+            lineType)
+
+            
 
         #analizo_objeto(punto_elegido,img,n)        
     cv.imshow('testing',frame)    
@@ -215,10 +226,7 @@ class seguidor:
 
         while(True):
             dibujo_puntos_nc(recortes,n,punto_elegido,cap,r,contours)					
-            tecla = cv.waitKey(5) & 0xFF
-            if tecla == 'r':
-                seguidor.runcolor(None,puntos,cap,n,color,img,lala)
-                pdb.set_trace()
+            tecla = cv.waitKey(5) & 0xFF        
             if tecla == 27:
                 break                    
 
