@@ -45,6 +45,9 @@ Donde: [--tecnica] decide cual tecnica tomar, Lucas Kanade o Shi-Tomasi
 #https://stackoverflow.com/questions/2709821/what-is-the-purpose-of-self
 #https://es.stackoverflow.com/questions/202588/como-funciona-self-en-python	
 https://docs.opencv.org/2.4/modules/imgproc/doc/structural_analysis_and_shape_descriptors.html#double%20matchShapes(InputArray%20contour1,%20InputArray%20contour2,%20int%20method,%20double%20parameter)
+
+#https://stackoverflow.com/questions/48829532/module-cv2-cv2-has-no-attribute-puttext
+
 ----------------------------------------------------------------------------------
 ----------------------------------------------------------------------------------
 ----------------------------------------------------------------------------------
@@ -91,7 +94,7 @@ def dibujo_puntos_nc(recortes,n,punto_elegido,cap,r,contours):
             cv.circle(img[i],tuple(k[0]), 3, (0,0,255), -1)
             recortes[i]=img_gray[i].copy()           
             frame[int(r[i][1]):int(r[i][1]+r[i][3]), int(r[i][0]):int(r[i][0]+r[i][2])]=img[i]
-        #https://stackoverflow.com/questions/48829532/module-cv2-cv2-has-no-attribute-puttext
+
         font     = cv.FONT_HERSHEY_COMPLEX_SMALL
         bottomLeftCornerOfText = (r[i][0],r[i][1])
         fontScale    = 0.4 
@@ -119,9 +122,9 @@ def dibujo_puntos_nc(recortes,n,punto_elegido,cap,r,contours):
             fontColor, 
             lineType)
 
-            
+   
 
-        #analizo_objeto(punto_elegido,img,n)        
+
     cv.imshow('testing',frame)    
 	
 
@@ -203,8 +206,6 @@ class seguidor:
         cy=[None]*n
         punto_elegido=[None]*n
         r=[None]*n
-
-        #frame_gray=cv.cvtColor(frame,cv.COLOR_BGR2GRAY)
         recortes=[None]*n
         for i in range(n):
                 r[i]=puntos_objeto(img[i])
@@ -244,14 +245,8 @@ def seleccion(puntos,cap,n):
         print('Hubo un error')
         sys.exit(1)
     r=[None]*n
-    #recortes=[None]*n
-    #recortes_hsv=[None]*n
     res=[None]*n        
-    #for i in range(n):
-        #r[i]=puntos_objeto(frame)
-        #recortes[i]=frame[int(r[i][1]):int(r[i][1]+r[i][3]), int(r[i][0]):int(r[i][0]+r[i][2])]
     hsv=cv.cvtColor(frame,cv.COLOR_BGR2HSV)
-        #cv.imshow('abc',recortes[0])
     while(True):
         h=cv.getTrackbarPos('H','Color HSV')
         s=cv.getTrackbarPos('S','Color HSV')
@@ -262,8 +257,6 @@ def seleccion(puntos,cap,n):
         
 
         mask= cv.inRange(hsv,lwr,upr)
-            #res= cv.bitwise_and(recortes[i],recortes[i],mask=mask)
-            #_,res=cv.threshold(res,50,255,cv.THRESH_BINARY)
         cv.imshow('Seleccion',mask)
         if cv.waitKey(20) & 0xFF == 27:
             break
@@ -304,12 +297,7 @@ if __name__=='__main__':
                         img[i]=seleccion(puntos,cap,n)                   
                     for i in range(n-1):
                         img[i]=cv.add(img[i],img[i-1])
-                    lala=img[i]
-##                    while(True):
-##                        cv.imshow('def',lala)
-##                        if cv.waitKey(20) & 0xFF == 27:
-##                            break                        
-                seguidor.runcolor(None,puntos,cap,n,color,img,lala)#lala
-            #cv.namedWindow('Test Key') #necesaria para que waitkey funcione bien
+                    aux=img[i]
+                seguidor.runcolor(None,puntos,cap,n,color,img,aux)
             tec_esc=cv.waitKey(0)
 	cv.destroyAllWindows()
