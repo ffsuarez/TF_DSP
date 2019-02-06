@@ -137,7 +137,7 @@ class seguidor:
             
             if(metod=='--lk'):
                     lk_params = dict( winSize  = (500, 500),maxLevel = 2,criteria = (cv.TERM_CRITERIA_EPS , 10, 0.003))
-                    feature_params = dict( maxCorners = 500,qualityLevel = 0.3,minDistance = 7,blockSize = 7 )
+                    feature_params = dict( maxCorners = 4,qualityLevel = 0.3,minDistance = 7,blockSize = 7 )
                     return(lk_params,feature_params)
             else:
                     print('No se reconoce opcion metod:',metod)
@@ -148,7 +148,7 @@ class seguidor:
     def run (self,puntos,cap,n,color):
         print('Comenzando trabajo')
         _,frame=cap.read()
-        kernel = cv.getStructuringElement(cv.MORPH_ELLIPSE,(5,5))
+        kernel = cv.getStructuringElement(cv.MORPH_ELLIPSE,(9,9))
         contours=[None]*n
         maximo=[None]*n
         momentos=[None]*n
@@ -163,10 +163,10 @@ class seguidor:
                 r[i]=puntos_objeto(frame)
                 puntos.append(r[i])                    
                 recortes[i]=frame_gray[int(r[i][1]):int(r[i][1]+r[i][3]), int(r[i][0]):int(r[i][0]+r[i][2])]
-                #recortes[i]=cv.adaptiveThreshold(recortes[i],255,cv.ADAPTIVE_THRESH_GAUSSIAN_C,cv.THRESH_BINARY,11,2)
-                #recortes[i] = cv.morphologyEx(recortes[i], cv.MORPH_OPEN, kernel)
-                #recortes[i] = cv.morphologyEx(recortes[i], cv.MORPH_CLOSE, kernel)
-                #recortes[i]=cv.bitwise_not(recortes[i])
+                recortes[i]=cv.adaptiveThreshold(recortes[i],255,cv.ADAPTIVE_THRESH_GAUSSIAN_C,cv.THRESH_BINARY,11,2)
+                recortes[i] = cv.morphologyEx(recortes[i], cv.MORPH_OPEN, kernel)
+                recortes[i] = cv.morphologyEx(recortes[i], cv.MORPH_CLOSE, kernel)
+                recortes[i]=cv.bitwise_not(recortes[i])
                 #_,contours[i],_=cv.findContours(recortes[i], cv.RETR_CCOMP, cv.CHAIN_APPROX_TC89_KCOS)
                 #pdb.set_trace()
                 #maximo[i]=max(contours[i], key = cv.contourArea)
@@ -174,7 +174,7 @@ class seguidor:
                 #cx[i]=float(momentos[i]['m10']/momentos[i]['m00'])
                 #cy[i]=float(momentos[i]['m01']/momentos[i]['m00'])
                 #punto_elegido[i]=np.array([[[cx[i],cy[i]]]],np.float32)
-                punto_elegido[i]=cv.goodFeaturesToTrack(recortes[i],mask=None,**seguidor.opciones(None,metodo)[1])
+                punto_elegido[i]=cv.goodFeaturesToTrack(recortes[i],mask=recortes[i],**seguidor.opciones(None,metodo)[1])
                 cv.imshow("{:d}".format(i),recortes[i])
         cv.destroyWindow('ROI selector')
 
