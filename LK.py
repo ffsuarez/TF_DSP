@@ -24,15 +24,17 @@ Recordar realizar la aplicación de los comandos
 
 Como se pretende que sea el uso:
 
-LK.py [--tecnica<=--lk| --shi] [<fuente_video>] [n_objetos] [--color<= --color --nocolor] [--especificacion<= -r  -b  -g  -x]
+LK.py [--tecnica<=--lk| --shi] [<fuente_video>] [n_objetos] [--color<= --color --nocolor] 
 
 Donde: [--tecnica] decide cual tecnica tomar, Lucas Kanade o Shi-Tomasi
        [<fuente_video>] elige un archivo de video y lo lee, sino toma la camara
        [n_objetos] es el numero de objetos a seguir
        [--color] decide agregar la condicion de seguir al objeto si posee determinado color
-       [--especificacion] decide si seguir color rojo,azul,verde o especifica
 
-
+----------------------------------------------------------------------------------
+----------------------------------------------------------------------------------
+----------------------------------------------------------------------------------
+'''
 #https://robologs.net/2017/08/22/tutorial-de-opencv-python-tracking-de-objetos-con-el-metodo-de-lucas-kanade/
 
 #http://pyspanishdoc.sourceforge.net/lib/module-getopt.html	   
@@ -44,14 +46,12 @@ Donde: [--tecnica] decide cual tecnica tomar, Lucas Kanade o Shi-Tomasi
 #https://docs.opencv.org/3.0-beta/modules/imgproc/doc/feature_detection.html
 #https://stackoverflow.com/questions/2709821/what-is-the-purpose-of-self
 #https://es.stackoverflow.com/questions/202588/como-funciona-self-en-python	
-https://docs.opencv.org/2.4/modules/imgproc/doc/structural_analysis_and_shape_descriptors.html#double%20matchShapes(InputArray%20contour1,%20InputArray%20contour2,%20int%20method,%20double%20parameter)
+#https://docs.opencv.org/2.4/modules/imgproc/doc/structural_analysis_and_shape_descriptors.html#double%20matchShapes(InputArray%20contour1,%20InputArray%20contour2,%20int%20method,%20double%20parameter)
 
 #https://stackoverflow.com/questions/48829532/module-cv2-cv2-has-no-attribute-puttext
 
-----------------------------------------------------------------------------------
-----------------------------------------------------------------------------------
-----------------------------------------------------------------------------------
-'''
+
+
 
 
 import cv2 as cv
@@ -65,15 +65,6 @@ def nada(x):
     #pdb.set_trace()    
     #img es numpy nd array
     pass
-
-
-
-
-
-
-
-
-
 #---------------------------------------------------------------------
 def puntos_objeto(frame):
     r=cv.selectROI(frame)    
@@ -145,7 +136,7 @@ class seguidor:
             
             
             if(metod=='--lk'):
-                    lk_params = dict( winSize  = (500, 500),maxLevel = 20,criteria = (cv.TERM_CRITERIA_EPS | cv.TERM_CRITERIA_COUNT , 10, 0.003))
+                    lk_params = dict( winSize  = (500, 500),maxLevel = 2,criteria = (cv.TERM_CRITERIA_EPS , 10, 0.003))
                     feature_params = dict( maxCorners = 500,qualityLevel = 0.3,minDistance = 7,blockSize = 7 )
                     return(lk_params,feature_params)
             else:
@@ -238,9 +229,9 @@ def seleccion(puntos,cap,n):
     ret,frame=cap.read()
     cv.namedWindow('Color HSV',cv.WINDOW_NORMAL)
     cv.resizeWindow('Color HSV', 100,50)
-    cv.createTrackbar('H','Color HSV',0,180,nada)
-    cv.createTrackbar('S','Color HSV',0,255,nada)
-    cv.createTrackbar('V','Color HSV',0,255,nada)    
+    cv.createTrackbar('H','Color HSV',0,175,nada)
+    cv.createTrackbar('S','Color HSV',0,235,nada)
+    cv.createTrackbar('V','Color HSV',0,235,nada)    
     if(ret==False):
         print('Hubo un error')
         sys.exit(1)
@@ -253,7 +244,7 @@ def seleccion(puntos,cap,n):
         v=cv.getTrackbarPos('V','Color HSV')
 
         lwr=np.array([h,s,v])
-        upr=np.array([h+5,255,255])
+        upr=np.array([h+5,s+20,v+20])
         
 
         mask= cv.inRange(hsv,lwr,upr)
