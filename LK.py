@@ -173,7 +173,7 @@ class seguidor:
             
             
             if(metod=='--lk'):
-                    lk_params = dict( winSize  = (200, 200),maxLevel = 20,criteria = (cv.TERM_CRITERIA_EPS | cv.TERM_CRITERIA_COUNT , 20, 0.003))
+                    lk_params = dict( winSize  = (100, 100),maxLevel = 20,criteria = (cv.TERM_CRITERIA_EPS | cv.TERM_CRITERIA_COUNT , 20, 0.003))
                     feature_params = dict( maxCorners = 1,qualityLevel = 0.1,minDistance = 3,blockSize = 10 )
                     return(lk_params,feature_params)
             else:
@@ -199,9 +199,10 @@ class seguidor:
         imrecortes=[None]*n
         for i in range(n):
                 r[i]=puntos_objeto(frame)
-                puntos.append(r[i])                    
+                #puntos.append(r[i])                    
                 imrecortes[i]=frame_gray[int(r[i][1]):int(r[i][1]+r[i][3]), int(r[i][0]):int(r[i][0]+r[i][2])]
                 recortes[i]=frame_gray[int(r[i][1]):int(r[i][1]+r[i][3]), int(r[i][0]):int(r[i][0]+r[i][2])]
+                #recortes[i]=cv.GaussianBlur(recortes[i],(3,3),2)
                 recortes[i]=cv.adaptiveThreshold(recortes[i],255,cv.ADAPTIVE_THRESH_GAUSSIAN_C,cv.THRESH_BINARY,11,2)
                 #recortes[i] = cv.morphologyEx(recortes[i], cv.MORPH_OPEN, kernel)
                 #recortes[i] = cv.morphologyEx(recortes[i], cv.MORPH_CLOSE, kernel)
@@ -217,6 +218,8 @@ class seguidor:
                 punto_elegido[i]=cv.goodFeaturesToTrack(recortes[i],mask=recortes[i],**seguidor.opciones(None,metodo)[1])
                 cv.imshow("{:d}".format(i),recortes[i])
         cv.destroyWindow('ROI selector')
+        frame_gray=cv.adaptiveThreshold(recortes[i],255,cv.ADAPTIVE_THRESH_GAUSSIAN_C,cv.THRESH_BINARY,11,2)
+        
 
         while(True):
             dibujo_puntos_nc(recortes,n,punto_elegido,cap,r,contours,aux_elegido,imrecortes)					
