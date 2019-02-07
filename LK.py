@@ -76,22 +76,32 @@ def dibujo_puntos_nc(recortes,n,punto_elegido,cap,r,contours,aux_elegido,imrecor
     err=[None]*n
     img=[None]*n
     img_gray=[None]*n
-    #maximo=[None]*n
+    maximo=[None]*n
+    cx=[None]*n
+    cy=[None]*n
+    momentos=[None]*n
     for j in range(n):        
         img[j]=frame[int(r[j][1]):int(r[j][1]+r[j][3]), int(r[j][0]):int(r[j][0]+r[j][2])]
         img_gray[j]=cv.cvtColor(img[j],cv.COLOR_BGR2GRAY)
         #pdb.set_trace()
         res=cv.matchTemplate(img_gray[j],imrecortes[j],cv.TM_CCOEFF_NORMED)
-        thr=0.4
+        thr=0.2
         if(res>=thr):
-            punto_elegido[j],st[j],err[j]= cv.calcOpticalFlowPyrLK(recortes[j],img_gray[j],punto_elegido[j],None, **seguidor.opciones(None,metodo)[0])
+            punto_elegido[j],st[j],err[j]= cv.calcOpticalFlowPyrLK(recortes[j],img_gray[j],punto_elegido[j],None, **seguidor.opciones(None,metodo)[0])            
+            _,contours[j],_=cv.findContours(recortes[j], cv.RETR_CCOMP, cv.CHAIN_APPROX_TC89_KCOS)
+            maximo[j]=max(contours[j], key = cv.contourArea)
+            momentos[j] = cv.moments(maximo[j])
+            cx[j]=float(momentos[j]['m10']/momentos[j]['m00'])
+            cy[j]=float(momentos[j]['m01']/momentos[j]['m00'])
+            aux_elegido[j]=np.array([[[cx[j],cy[j]]]],np.float32)
             aux_elegido[j],st[j],err[j]= cv.calcOpticalFlowPyrLK(recortes[j],img_gray[j],aux_elegido[j],None, **seguidor.opciones(None,metodo)[0])
+            #punto_elegido[j]=cv.goodFeaturesToTrack(recortes[j],mask=recortes[j],**seguidor.opciones(None,metodo)[1])
         else:
             break
 
 
     for i in range(n):
-        if(res>=(thr-(thr*0.6))):
+        if(res>=(thr-(thr*0.5))):
             for k in aux_elegido[i]:
                 cv.circle(img[i],tuple(k[0]), 3, (255,0,255), -1)
                 recortes[i]=img_gray[i].copy()           
