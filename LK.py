@@ -85,7 +85,7 @@ def dibujo_puntos_nc(recortes,n,punto_elegido,cap,r,contours,aux_elegido,imrecor
         img_gray[j]=cv.cvtColor(img[j],cv.COLOR_BGR2GRAY)
         #pdb.set_trace()
         res=cv.matchTemplate(img_gray[j],imrecortes[j],cv.TM_CCOEFF_NORMED)
-        thr=0.2
+        thr=0.3
         if(res>=thr):
             punto_elegido[j],st[j],err[j]= cv.calcOpticalFlowPyrLK(recortes[j],img_gray[j],punto_elegido[j],None, **seguidor.opciones(None,metodo)[0])            
             _,contours[j],_=cv.findContours(recortes[j], cv.RETR_CCOMP, cv.CHAIN_APPROX_TC89_KCOS)
@@ -101,8 +101,8 @@ def dibujo_puntos_nc(recortes,n,punto_elegido,cap,r,contours,aux_elegido,imrecor
 
 
     for i in range(n):
-        if(res>=(thr-(thr*0.5))):
-            for k in aux_elegido[i]:
+        if(res>=(thr+(thr*0.7))):
+            for k in punto_elegido[i]:
                 cv.circle(img[i],tuple(k[0]), 3, (255,0,255), -1)
                 recortes[i]=img_gray[i].copy()           
                 frame[int(r[i][1]):int(r[i][1]+r[i][3]), int(r[i][0]):int(r[i][0]+r[i][2])]=img[i]
@@ -116,7 +116,7 @@ def dibujo_puntos_nc(recortes,n,punto_elegido,cap,r,contours,aux_elegido,imrecor
 
     for i in range(n):
         if(res>=thr):        
-            for k in punto_elegido[i]:
+            for k in aux_elegido[i]:
                 cv.circle(img[i],tuple(k[0]), 3, (0,0,255), -1)
                 recortes[i]=img_gray[i].copy()           
                 frame[int(r[i][1]):int(r[i][1]+r[i][3]), int(r[i][0]):int(r[i][0]+r[i][2])]=img[i]
@@ -127,26 +127,26 @@ def dibujo_puntos_nc(recortes,n,punto_elegido,cap,r,contours,aux_elegido,imrecor
             fontColor    = (0,0,0) 
             lineType    = 1
             
-            if((punto_elegido[i][0][0][0]<0)or(punto_elegido[i][0][0][1]<0)or(punto_elegido[i][0][0][1]>int(r[i][3]))or(punto_elegido[i][0][0][0]>int(r[i][2]))):
-                cv.putText(frame,"FUERA DE ROI", 
-                bottomLeftCornerOfText, 
-                font, 
-                fontScale, 
-                fontColor, 
-                lineType)
-            else:
-                cv.putText(frame,"       {:.2f}".format(punto_elegido[i][0][0][1]), 
-                bottomLeftCornerOfText, 
-                font, 
-                fontScale, 
-                fontColor, 
-                lineType)
-                cv.putText(frame,"{:.2f}".format(punto_elegido[i][0][0][0]), 
-                bottomLeftCornerOfText, 
-                font, 
-                fontScale, 
-                fontColor, 
-                lineType)
+##            if((punto_elegido[i][0][0][0]<0)or(punto_elegido[i][0][0][1]<0)or(punto_elegido[i][0][0][1]>int(r[i][3]))or(punto_elegido[i][0][0][0]>int(r[i][2]))):
+##                cv.putText(frame,"FUERA DE ROI", 
+##                bottomLeftCornerOfText, 
+##                font, 
+##                fontScale, 
+##                fontColor, 
+##                lineType)
+##            else:
+##                cv.putText(frame,"       {:.2f}".format(punto_elegido[i][0][0][1]), 
+##                bottomLeftCornerOfText, 
+##                font, 
+##                fontScale, 
+##                fontColor, 
+##                lineType)
+##                cv.putText(frame,"{:.2f}".format(punto_elegido[i][0][0][0]), 
+##                bottomLeftCornerOfText, 
+##                font, 
+##                fontScale, 
+##                fontColor, 
+##                lineType)
         else:
             break
 
