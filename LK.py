@@ -85,24 +85,24 @@ def dibujo_puntos_nc(recortes,n,punto_elegido,cap,r,contours,aux_elegido,imrecor
         img_gray[j]=cv.cvtColor(img[j],cv.COLOR_BGR2GRAY)
         #pdb.set_trace()
         res=cv.matchTemplate(img_gray[j],imrecortes[j],cv.TM_CCOEFF_NORMED)
-        thr=0.3
+        thr=0.01
         if(res>=thr):
-            punto_elegido[j],st[j],err[j]= cv.calcOpticalFlowPyrLK(recortes[j],img_gray[j],punto_elegido[j],None, **seguidor.opciones(None,metodo)[0])            
+            punto_elegido[j],st[j],err[j]= cv.calcOpticalFlowPyrLK(imrecortes[j],img_gray[j],punto_elegido[j],None, **seguidor.opciones(None,metodo)[0])            
             _,contours[j],_=cv.findContours(recortes[j], cv.RETR_CCOMP, cv.CHAIN_APPROX_TC89_KCOS)
             maximo[j]=max(contours[j], key = cv.contourArea)
             momentos[j] = cv.moments(maximo[j])
             cx[j]=float(momentos[j]['m10']/momentos[j]['m00'])
             cy[j]=float(momentos[j]['m01']/momentos[j]['m00'])
             aux_elegido[j]=np.array([[[cx[j],cy[j]]]],np.float32)
-            aux_elegido[j],st[j],err[j]= cv.calcOpticalFlowPyrLK(recortes[j],img_gray[j],aux_elegido[j],None, **seguidor.opciones(None,metodo)[0])
-            #punto_elegido[j]=cv.goodFeaturesToTrack(recortes[j],mask=recortes[j],**seguidor.opciones(None,metodo)[1])
+            aux_elegido[j],st[j],err[j]= cv.calcOpticalFlowPyrLK(imrecortes[j],img_gray[j],aux_elegido[j],None, **seguidor.opciones(None,metodo)[0])
+            punto_elegido[j]=cv.goodFeaturesToTrack(recortes[j],mask=recortes[j],**seguidor.opciones(None,metodo)[1])
         else:
             break
 
 
     for i in range(n):
-        if(res>=(thr+(thr*0.7))):
-            for k in punto_elegido[i]:
+        if(res>=0.6):
+            for k in aux_elegido[i]:
                 cv.circle(img[i],tuple(k[0]), 3, (255,0,255), -1)
                 recortes[i]=img_gray[i].copy()           
                 frame[int(r[i][1]):int(r[i][1]+r[i][3]), int(r[i][0]):int(r[i][0]+r[i][2])]=img[i]
@@ -115,8 +115,8 @@ def dibujo_puntos_nc(recortes,n,punto_elegido,cap,r,contours,aux_elegido,imrecor
 
 
     for i in range(n):
-        if(res>=thr):        
-            for k in aux_elegido[i]:
+        if(res>=0.4):        
+            for k in punto_elegido[i]:
                 cv.circle(img[i],tuple(k[0]), 3, (0,0,255), -1)
                 recortes[i]=img_gray[i].copy()           
                 frame[int(r[i][1]):int(r[i][1]+r[i][3]), int(r[i][0]):int(r[i][0]+r[i][2])]=img[i]
@@ -174,7 +174,7 @@ class seguidor:
             
             if(metod=='--lk'):
                     lk_params = dict( winSize  = (100, 100),maxLevel = 20,criteria = (cv.TERM_CRITERIA_EPS | cv.TERM_CRITERIA_COUNT , 20, 0.003))
-                    feature_params = dict( maxCorners = 1,qualityLevel = 0.1,minDistance = 3,blockSize = 10 )
+                    feature_params = dict( maxCorners = 4,qualityLevel = 0.1,minDistance = 3,blockSize = 10 )
                     return(lk_params,feature_params)
             else:
                     print('No se reconoce opcion metod:',metod)
@@ -202,7 +202,7 @@ class seguidor:
                 #puntos.append(r[i])                    
                 imrecortes[i]=frame_gray[int(r[i][1]):int(r[i][1]+r[i][3]), int(r[i][0]):int(r[i][0]+r[i][2])]
                 recortes[i]=frame_gray[int(r[i][1]):int(r[i][1]+r[i][3]), int(r[i][0]):int(r[i][0]+r[i][2])]
-                #recortes[i]=cv.GaussianBlur(recortes[i],(3,3),2)
+                recortes[i]=cv.GaussianBlur(recortes[i],(3,3),5)
                 recortes[i]=cv.adaptiveThreshold(recortes[i],255,cv.ADAPTIVE_THRESH_GAUSSIAN_C,cv.THRESH_BINARY,11,2)
                 #recortes[i] = cv.morphologyEx(recortes[i], cv.MORPH_OPEN, kernel)
                 #recortes[i] = cv.morphologyEx(recortes[i], cv.MORPH_CLOSE, kernel)
@@ -218,10 +218,27 @@ class seguidor:
                 punto_elegido[i]=cv.goodFeaturesToTrack(recortes[i],mask=recortes[i],**seguidor.opciones(None,metodo)[1])
                 cv.imshow("{:d}".format(i),recortes[i])
         cv.destroyWindow('ROI selector')
-        frame_gray=cv.adaptiveThreshold(recortes[i],255,cv.ADAPTIVE_THRESH_GAUSSIAN_C,cv.THRESH_BINARY,11,2)
+
         
 
         while(True):
+            for i in range(n):
+                imrecortes[i]=frame_gray[int(r[i][1]):int(r[i][1]+r[i][3]), int(r[i][0]):int(r[i][0]+r[i][2])]
+                #imrecortes[i]=cv.GaussianBlur(imrecortes[i],(3,3),5)
+                #imrecortes[i]=cv.adaptiveThreshold(imrecortes[i],255,cv.ADAPTIVE_THRESH_GAUSSIAN_C,cv.THRESH_BINARY,11,2)
+                #recortes[i] = cv.morphologyEx(recortes[i], cv.MORPH_OPEN, kernel)
+                #recortes[i] = cv.morphologyEx(recortes[i], cv.MORPH_CLOSE, kernel)
+                #imrecortes[i]=cv.bitwise_not(imrecortes[i])
+                #imrecortes[i]=cv.Canny(imrecortes[i],100,200)
+                #_,contours[i],_=cv.findContours(imrecortes[i], cv.RETR_CCOMP, cv.CHAIN_APPROX_TC89_KCOS)
+                #pdb.set_trace()
+                #maximo[i]=max(contours[i], key = cv.contourArea)
+                #momentos[i] = cv.moments(maximo[i])
+                #cx[i]=float(momentos[i]['m10']/momentos[i]['m00'])
+                #cy[i]=float(momentos[i]['m01']/momentos[i]['m00'])
+                #aux_elegido[i]=np.array([[[cx[i],cy[i]]]],np.float32)
+                #punto_elegido[i]=cv.goodFeaturesToTrack(imrecortes[i],mask=imrecortes[i],**seguidor.opciones(None,metodo)[1])
+                
             dibujo_puntos_nc(recortes,n,punto_elegido,cap,r,contours,aux_elegido,imrecortes)					
             tecla = cv.waitKey(5) & 0xFF
             if tecla == 27:
