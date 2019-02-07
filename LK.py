@@ -70,48 +70,75 @@ def puntos_objeto(frame):
     r=cv.selectROI(frame)    
     return(r)
 #---------------------------------------------------------------------
-def dibujo_puntos_nc(recortes,n,punto_elegido,cap,r,contours):
+def dibujo_puntos_nc(recortes,n,punto_elegido,cap,r,contours,aux_elegido,imrecortes):
     _,frame=cap.read()    
     st=[None]*n
     err=[None]*n
     img=[None]*n
     img_gray=[None]*n
-    for j in range(n):
+    #maximo=[None]*n
+    for j in range(n):        
         img[j]=frame[int(r[j][1]):int(r[j][1]+r[j][3]), int(r[j][0]):int(r[j][0]+r[j][2])]
         img_gray[j]=cv.cvtColor(img[j],cv.COLOR_BGR2GRAY)
-        punto_elegido[j],st[j],err[j]= cv.calcOpticalFlowPyrLK(recortes[j],img_gray[j],punto_elegido[j],None, **seguidor.opciones(None,metodo)[0])
-    for i in range(n):
-        for k in punto_elegido[i]:
-            cv.circle(img[i],tuple(k[0]), 3, (0,0,255), -1)
-            recortes[i]=img_gray[i].copy()           
-            frame[int(r[i][1]):int(r[i][1]+r[i][3]), int(r[i][0]):int(r[i][0]+r[i][2])]=img[i]
-
-        font     = cv.FONT_HERSHEY_COMPLEX_SMALL
-        bottomLeftCornerOfText = (r[i][0],r[i][1])
-        fontScale    = 0.4 
-        fontColor    = (0,0,0) 
-        lineType    = 1
-        
-        if((punto_elegido[i][0][0][0]<0)or(punto_elegido[i][0][0][1]<0)or(punto_elegido[i][0][0][1]>int(r[i][3]))or(punto_elegido[i][0][0][0]>int(r[i][2]))):
-            cv.putText(frame,"FUERA DE ROI", 
-            bottomLeftCornerOfText, 
-            font, 
-            fontScale, 
-            fontColor, 
-            lineType)
+        #pdb.set_trace()
+        res=cv.matchTemplate(img_gray[j],imrecortes[j],cv.TM_CCOEFF_NORMED)
+        thr=0.4
+        if(res>=thr):
+            punto_elegido[j],st[j],err[j]= cv.calcOpticalFlowPyrLK(recortes[j],img_gray[j],punto_elegido[j],None, **seguidor.opciones(None,metodo)[0])
+            aux_elegido[j],st[j],err[j]= cv.calcOpticalFlowPyrLK(recortes[j],img_gray[j],aux_elegido[j],None, **seguidor.opciones(None,metodo)[0])
         else:
-            cv.putText(frame,"       {:.2f}".format(punto_elegido[i][0][0][1]), 
-            bottomLeftCornerOfText, 
-            font, 
-            fontScale, 
-            fontColor, 
-            lineType)
-            cv.putText(frame,"{:.2f}".format(punto_elegido[i][0][0][0]), 
-            bottomLeftCornerOfText, 
-            font, 
-            fontScale, 
-            fontColor, 
-            lineType)
+            break
+
+
+    for i in range(n):
+        if(res>=(thr-(thr*0.6))):
+            for k in aux_elegido[i]:
+                cv.circle(img[i],tuple(k[0]), 3, (255,0,255), -1)
+                recortes[i]=img_gray[i].copy()           
+                frame[int(r[i][1]):int(r[i][1]+r[i][3]), int(r[i][0]):int(r[i][0]+r[i][2])]=img[i]
+        else:
+            #_,contours[i],_=cv.findContours(recortes[i], cv.RETR_CCOMP, cv.CHAIN_APPROX_TC89_KCOS)
+            #maximo[i]=max(contours[i], key = cv.contourArea)
+            #cx[i]=float(momentos[i]['m10']/momentos[i]['m00'])
+            break
+
+
+
+    for i in range(n):
+        if(res>=thr):        
+            for k in punto_elegido[i]:
+                cv.circle(img[i],tuple(k[0]), 3, (0,0,255), -1)
+                recortes[i]=img_gray[i].copy()           
+                frame[int(r[i][1]):int(r[i][1]+r[i][3]), int(r[i][0]):int(r[i][0]+r[i][2])]=img[i]
+
+            font     = cv.FONT_HERSHEY_COMPLEX_SMALL
+            bottomLeftCornerOfText = (r[i][0],r[i][1])
+            fontScale    = 0.4 
+            fontColor    = (0,0,0) 
+            lineType    = 1
+            
+            if((punto_elegido[i][0][0][0]<0)or(punto_elegido[i][0][0][1]<0)or(punto_elegido[i][0][0][1]>int(r[i][3]))or(punto_elegido[i][0][0][0]>int(r[i][2]))):
+                cv.putText(frame,"FUERA DE ROI", 
+                bottomLeftCornerOfText, 
+                font, 
+                fontScale, 
+                fontColor, 
+                lineType)
+            else:
+                cv.putText(frame,"       {:.2f}".format(punto_elegido[i][0][0][1]), 
+                bottomLeftCornerOfText, 
+                font, 
+                fontScale, 
+                fontColor, 
+                lineType)
+                cv.putText(frame,"{:.2f}".format(punto_elegido[i][0][0][0]), 
+                bottomLeftCornerOfText, 
+                font, 
+                fontScale, 
+                fontColor, 
+                lineType)
+        else:
+            break
 
    
 
@@ -156,31 +183,33 @@ class seguidor:
         cy=[None]*n
         punto_elegido=[None]*n
         r=[None]*n
-
+        aux_elegido=[None]*n
         frame_gray=cv.cvtColor(frame,cv.COLOR_BGR2GRAY)
         recortes=[None]*n
+        imrecortes=[None]*n
         for i in range(n):
                 r[i]=puntos_objeto(frame)
                 puntos.append(r[i])                    
+                imrecortes[i]=frame_gray[int(r[i][1]):int(r[i][1]+r[i][3]), int(r[i][0]):int(r[i][0]+r[i][2])]
                 recortes[i]=frame_gray[int(r[i][1]):int(r[i][1]+r[i][3]), int(r[i][0]):int(r[i][0]+r[i][2])]
                 recortes[i]=cv.adaptiveThreshold(recortes[i],255,cv.ADAPTIVE_THRESH_GAUSSIAN_C,cv.THRESH_BINARY,11,2)
                 #recortes[i] = cv.morphologyEx(recortes[i], cv.MORPH_OPEN, kernel)
                 #recortes[i] = cv.morphologyEx(recortes[i], cv.MORPH_CLOSE, kernel)
                 recortes[i]=cv.bitwise_not(recortes[i])
                 recortes[i]=cv.Canny(recortes[i],100,200)
-                #_,contours[i],_=cv.findContours(recortes[i], cv.RETR_CCOMP, cv.CHAIN_APPROX_TC89_KCOS)
+                _,contours[i],_=cv.findContours(recortes[i], cv.RETR_CCOMP, cv.CHAIN_APPROX_TC89_KCOS)
                 #pdb.set_trace()
-                #maximo[i]=max(contours[i], key = cv.contourArea)
-                #momentos[i] = cv.moments(maximo[i])
-                #cx[i]=float(momentos[i]['m10']/momentos[i]['m00'])
-                #cy[i]=float(momentos[i]['m01']/momentos[i]['m00'])
-                #punto_elegido[i]=np.array([[[cx[i],cy[i]]]],np.float32)
+                maximo[i]=max(contours[i], key = cv.contourArea)
+                momentos[i] = cv.moments(maximo[i])
+                cx[i]=float(momentos[i]['m10']/momentos[i]['m00'])
+                cy[i]=float(momentos[i]['m01']/momentos[i]['m00'])
+                aux_elegido[i]=np.array([[[cx[i],cy[i]]]],np.float32)
                 punto_elegido[i]=cv.goodFeaturesToTrack(recortes[i],mask=recortes[i],**seguidor.opciones(None,metodo)[1])
                 cv.imshow("{:d}".format(i),recortes[i])
         cv.destroyWindow('ROI selector')
 
         while(True):
-            dibujo_puntos_nc(recortes,n,punto_elegido,cap,r,contours)					
+            dibujo_puntos_nc(recortes,n,punto_elegido,cap,r,contours,aux_elegido,imrecortes)					
             tecla = cv.waitKey(5) & 0xFF
             if tecla == 27:
                 break
