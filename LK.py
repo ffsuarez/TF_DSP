@@ -173,8 +173,8 @@ class seguidor:
             
             
             if(metod=='--lk'):
-                    lk_params = dict( winSize  = (500, 500),maxLevel = 2,criteria = (cv.TERM_CRITERIA_EPS , 10, 0.003))
-                    feature_params = dict( maxCorners = 4,qualityLevel = 0.6,minDistance = 7,blockSize = 7 )
+                    lk_params = dict( winSize  = (200, 200),maxLevel = 20,criteria = (cv.TERM_CRITERIA_EPS | cv.TERM_CRITERIA_COUNT , 20, 0.003))
+                    feature_params = dict( maxCorners = 1,qualityLevel = 0.1,minDistance = 3,blockSize = 10 )
                     return(lk_params,feature_params)
             else:
                     print('No se reconoce opcion metod:',metod)
