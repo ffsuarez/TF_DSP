@@ -78,15 +78,22 @@ def dibujo_puntos_cc(recortes,n,punto_elegido,cap,r,contours):
     err=[None]*n
     img=[None]*n
     img_gray=[None]*n
+    
+    maximo=[None]*n
+    momentos=[None]*n
+    cx=[None]*n
+    cy=[None]*n
+    
     for j in range(n):
         img[j]=frame[int(r[j][1]):int(r[j][1]+r[j][3]), int(r[j][0]):int(r[j][0]+r[j][2])]
         img_gray[j]=cv.cvtColor(img[j],cv.COLOR_BGR2GRAY)
         punto_elegido[j],st[j],err[j]= cv.calcOpticalFlowPyrLK(recortes[j],img_gray[j],punto_elegido[j],None, **seguidor.opciones(None,metodo)[0])
-    for i in range(n):
-        for k in punto_elegido[i]:
-            cv.circle(img[i],tuple(k[0]), 3, (0,0,255), -1)
-            recortes[i]=img_gray[i].copy()           
-            frame[int(r[i][1]):int(r[i][1]+r[i][3]), int(r[i][0]):int(r[i][0]+r[i][2])]=img[i]
+    if(st[j]==1):
+        for i in range(n):
+            for k in punto_elegido[i]:
+                cv.circle(img[i],tuple(k[0]), 3, (0,0,255), -1)
+                recortes[i]=img_gray[i].copy()           
+                frame[int(r[i][1]):int(r[i][1]+r[i][3]), int(r[i][0]):int(r[i][0]+r[i][2])]=img[i]
         #https://stackoverflow.com/questions/48829532/module-cv2-cv2-has-no-attribute-puttext
 ##        font     = cv.FONT_HERSHEY_COMPLEX_SMALL
 ##        bottomLeftCornerOfText = (r[i][0],r[i][1])
@@ -118,6 +125,31 @@ def dibujo_puntos_cc(recortes,n,punto_elegido,cap,r,contours):
             
 
         #analizo_objeto(punto_elegido,img,n)        
+    else:
+        for i in range(n):
+            font     = cv.FONT_HERSHEY_COMPLEX_SMALL
+            bottomLeftCornerOfText = (r[i][0],r[i][1])
+            fontScale    = 0.4 
+            fontColor    = (0,0,0) 
+            lineType    = 1
+            cv.putText(frame,"Error", 
+            bottomLeftCornerOfText, 
+            font, 
+            fontScale, 
+            fontColor, 
+            lineType)
+            
+            recortes[i]=cv.Canny(recortes[i],100,200)
+            _,contours[i],_=cv.findContours(recortes[i], cv.RETR_CCOMP, cv.CHAIN_APPROX_TC89_KCOS)
+            
+            maximo[i]=max(contours[i], key = cv.contourArea)
+            momentos[i] = cv.moments(maximo[i])
+            cx[i]=float(momentos[i]['m10']/momentos[i]['m00'])
+            cy[i]=float(momentos[i]['m01']/momentos[i]['m00'])
+            punto_elegido[i]=np.array([[[cx[i],cy[i]]]],np.float32)
+            
+
+
     cv.imshow('testing',frame)
 
 
@@ -339,9 +371,10 @@ class seguidor:
                 puntos.append(r[i])                    
                 recortes[i]=img[i][int(r[i][1]):int(r[i][1]+r[i][3]), int(r[i][0]):int(r[i][0]+r[i][2])]
                 recortes[i]=cv.adaptiveThreshold(recortes[i],255,cv.ADAPTIVE_THRESH_GAUSSIAN_C,cv.THRESH_BINARY,11,2)
-                recortes[i] = cv.morphologyEx(recortes[i], cv.MORPH_OPEN, kernel)
-                recortes[i] = cv.morphologyEx(recortes[i], cv.MORPH_CLOSE, kernel)
-                recortes[i]=cv.bitwise_not(recortes[i])
+##                recortes[i] = cv.morphologyEx(recortes[i], cv.MORPH_OPEN, kernel)
+##                recortes[i] = cv.morphologyEx(recortes[i], cv.MORPH_CLOSE, kernel)
+                recortes[i]=cv.Canny(recortes[i],100,200)
+                #recortes[i]=cv.bitwise_not(recortes[i])
                 _,contours[i],_=cv.findContours(recortes[i], cv.RETR_CCOMP, cv.CHAIN_APPROX_TC89_KCOS)
                 #pdb.set_trace()
                 maximo[i]=max(contours[i], key = cv.contourArea)
@@ -353,7 +386,7 @@ class seguidor:
         cv.destroyWindow('ROI selector')
 
         while(True):
-            dibujo_puntos_nc(recortes,n,punto_elegido,cap,r,contours)					
+            dibujo_puntos_cc(recortes,n,punto_elegido,cap,r,contours)					
             tecla = cv.waitKey(5) & 0xFF        
             if tecla == 27:
                 break                    
@@ -379,7 +412,7 @@ def seleccion(puntos,cap,n):
         s=cv.getTrackbarPos('S','Color HSV')
         v=cv.getTrackbarPos('V','Color HSV')
 
-        lwr=np.array([h,s,v])
+        lwr=np.array([h-5,s-20,v-20])
         upr=np.array([h+5,s+20,v+20])
         
 
