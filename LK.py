@@ -84,8 +84,8 @@ def dibujo_puntos_cc(recortes,n,punto_elegido,cap,r,contours,imrecortes):
     cx=[None]*n
     cy=[None]*n
     #pdb.set_trace()
-    lwr=np.array([h-15,s-100,v-100])
-    upr=np.array([h+15,s+100,v+100])
+    lwr=np.array([h-10,s-50,v-50])
+    upr=np.array([h+10,s+50,v+50])
     hsv=[None]*n
     for j in range(n):
         img[j]=frame[int(r[j][1]):int(r[j][1]+r[j][3]), int(r[j][0]):int(r[j][0]+r[j][2])]
@@ -118,11 +118,15 @@ def dibujo_puntos_cc(recortes,n,punto_elegido,cap,r,contours,imrecortes):
                 recortes[i]= cv.inRange(hsv[i],lwr,upr)
                 recortes[i]=cv.Canny(recortes[i],100,200)
                 _,contours[i],_=cv.findContours(recortes[i], cv.RETR_CCOMP, cv.CHAIN_APPROX_TC89_KCOS)
-                maximo[i]=max(contours[i], key = cv.contourArea)
-                momentos[i] = cv.moments(maximo[i])
-                cx[i]=float(momentos[i]['m10']/momentos[i]['m00'])
-                cy[i]=float(momentos[i]['m01']/momentos[i]['m00'])
-                punto_elegido[i]=np.array([[[cx[i],cy[i]]]],np.float32)
+                if(contours[i]):
+                    maximo[i]=max(contours[i], key = cv.contourArea)
+                    momentos[i] = cv.moments(maximo[i])
+                pdb.set_trace()
+                if momentos[i] is not None:
+                    if(momentos[i]['m00']>0.1):
+                        cx[i]=float(momentos[i]['m10']/momentos[i]['m00'])
+                        cy[i]=float(momentos[i]['m01']/momentos[i]['m00'])
+                        punto_elegido[i]=np.array([[[cx[i],cy[i]]]],np.float32)
 
         else:
             #recortes[i]=img_gray[i].copy()
@@ -420,7 +424,7 @@ class seguidor:
                 cy[i]=float(momentos[i]['m01']/momentos[i]['m00'])
                 punto_elegido[i]=np.array([[[cx[i],cy[i]]]],np.float32)
                 cv.imshow("{:d}".format(i),recortes[i])
-        cv.destroyWindow('ROI selector')
+        cv.destroyAllWindows()
 
         while(True):
             dibujo_puntos_cc(recortes,n,punto_elegido,cap,r,contours,imrecortes)					
@@ -495,9 +499,9 @@ if __name__=='__main__':
                 if(puntos!=None):
                     for i in range(n):
                         img[i],h,s,v=seleccion(puntos,cap,n)                   
-                    for i in range(n-1):
-                        img[i]=cv.add(img[i],img[i-1])
+                    #for i in range(n-1):
+                        #img[i]=cv.add(img[i],img[i-1])
                     aux=img[i]
-                seguidor.runcolor(None,puntos,cap,n,color,img,aux)
+                    seguidor.runcolor(None,puntos,cap,n,color,img,aux)
             tec_esc=cv.waitKey(0)
 	cv.destroyAllWindows()
