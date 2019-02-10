@@ -84,6 +84,9 @@ def dibujo_puntos_cc(recortes,n,punto_elegido,cap,r,contours,imrecortes):
     cx=[None]*n
     cy=[None]*n
     #pdb.set_trace()
+    lwr=np.array([h-5,s-20,v-20])
+    upr=np.array([h+5,s+20,v+20])
+    hsv=[None]*n
     for j in range(n):
         img[j]=frame[int(r[j][1]):int(r[j][1]+r[j][3]), int(r[j][0]):int(r[j][0]+r[j][2])]
         img_gray[j]=cv.cvtColor(img[j],cv.COLOR_BGR2GRAY)        
@@ -110,7 +113,9 @@ def dibujo_puntos_cc(recortes,n,punto_elegido,cap,r,contours,imrecortes):
                 fontScale, 
                 fontColor, 
                 lineType)                
-                recortes[i]=img_gray[i].copy()         
+                #recortes[i]=img_gray[i].copy()
+                hsv[i]=cv.cvtColor(img[i],cv.COLOR_BGR2HSV)
+                recortes[i]= cv.inRange(hsv[i],lwr,upr)
                 recortes[i]=cv.Canny(recortes[i],100,200)
                 _,contours[i],_=cv.findContours(recortes[i], cv.RETR_CCOMP, cv.CHAIN_APPROX_TC89_KCOS)
 
@@ -121,7 +126,11 @@ def dibujo_puntos_cc(recortes,n,punto_elegido,cap,r,contours,imrecortes):
                 punto_elegido[i]=np.array([[[cx[i],cy[i]]]],np.float32)
 
         else:
-            recortes[i]=img_gray[i].copy()         
+            #recortes[i]=img_gray[i].copy()
+            hsv[i]=cv.cvtColor(img[i],cv.COLOR_BGR2HSV)
+
+            recortes[i]= cv.inRange(hsv[i],lwr,upr)
+
             recortes[i]=cv.Canny(recortes[i],100,200)
             _,contours[i],_=cv.findContours(recortes[i], cv.RETR_CCOMP, cv.CHAIN_APPROX_TC89_KCOS)
 
