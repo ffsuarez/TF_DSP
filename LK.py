@@ -83,7 +83,7 @@ def dibujo_puntos_cc(recortes,n,punto_elegido,cap,r,contours,imrecortes):
     momentos=[None]*n
     cx=[None]*n
     cy=[None]*n
-    
+    #pdb.set_trace()
     for j in range(n):
         img[j]=frame[int(r[j][1]):int(r[j][1]+r[j][3]), int(r[j][0]):int(r[j][0]+r[j][2])]
         img_gray[j]=cv.cvtColor(img[j],cv.COLOR_BGR2GRAY)        
@@ -176,6 +176,7 @@ def dibujo_puntos_cc(recortes,n,punto_elegido,cap,r,contours,imrecortes):
 
     cv.imshow('testing',frame)
     cv.imshow('rec',recortes[0])
+    cv.imshow('imrec',imrecortes[0])
 
 
 
@@ -449,7 +450,7 @@ def seleccion(puntos,cap,n):
         if cv.waitKey(20) & 0xFF == 27:
             break
     cv.destroyWindow('Seleccion')
-    return(mask)
+    return(mask,h,s,v)
                 
             
 
@@ -476,13 +477,16 @@ if __name__=='__main__':
 	cap=seguidor.__init__(None,video_src)
 	_,frame=cap.read()
 	img=[np.zeros(frame.shape)]*n
+	h=0
+	s=0
+	v=0
 	while(tec_esc != 27):            
             if(color=='--nocolor'):
                 seguidor.run(None,puntos,cap,n,color)
             elif(color=='--color'):
                 if(puntos!=None):
                     for i in range(n):
-                        img[i]=seleccion(puntos,cap,n)                   
+                        img[i],h,s,v=seleccion(puntos,cap,n)                   
                     for i in range(n-1):
                         img[i]=cv.add(img[i],img[i-1])
                     aux=img[i]
