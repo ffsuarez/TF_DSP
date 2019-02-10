@@ -115,9 +115,22 @@ def dibujo_puntos_nc(recortes,n,punto_elegido,cap,r,contours,aux_elegido,imrecor
             #cx[i]=float(momentos[i]['m10']/momentos[i]['m00'])
             
     for i in range(n):
+        if(res[i]>0.01):
+            font     = cv.FONT_HERSHEY_COMPLEX_SMALL
+            bottomLeftCornerOfText = (r[i][0],r[i][1]+10)
+            fontScale    = 0.5 
+            fontColor    = (120,60,20) 
+            lineType    = 1
+            cv.putText(frame,"{:.2f}".format(res[i][0][0]*100), 
+            bottomLeftCornerOfText, 
+            font, 
+            fontScale, 
+            fontColor, 
+            lineType)
+            
         for k in aux_elegido[i]:
             if(res[i]>=0.8):
-                cv.circle(img[i],tuple(k[0]), 3, (0,0,255), -1)
+                #cv.circle(img[i],tuple(k[0]), 3, (0,0,255), -1)
                 recortes[i]=img_gray[i].copy()
                 frame[int(r[i][1]):int(r[i][1]+r[i][3]), int(r[i][0]):int(r[i][0]+r[i][2])]=img[i]
                 font     = cv.FONT_HERSHEY_COMPLEX_SMALL
