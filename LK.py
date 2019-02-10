@@ -86,11 +86,12 @@ def dibujo_puntos_cc(recortes,n,punto_elegido,cap,r,contours):
     
     for j in range(n):
         img[j]=frame[int(r[j][1]):int(r[j][1]+r[j][3]), int(r[j][0]):int(r[j][0]+r[j][2])]
-        img_gray[j]=cv.cvtColor(img[j],cv.COLOR_BGR2GRAY)
+        img_gray[j]=cv.cvtColor(img[j],cv.COLOR_BGR2GRAY)        
         punto_elegido[j],st[j],err[j]= cv.calcOpticalFlowPyrLK(recortes[j],img_gray[j],punto_elegido[j],None, **seguidor.opciones(None,metodo)[0])
-    if(st[j]==1):
-        for i in range(n):
-            for k in punto_elegido[i]:
+    
+    for i in range(n):
+        for k in punto_elegido[i]:
+            if((st[j]==1)or(err[j])<0.01):
                 cv.circle(img[i],tuple(k[0]), 3, (0,0,255), -1)
                 recortes[i]=img_gray[i].copy()           
                 frame[int(r[i][1]):int(r[i][1]+r[i][3]), int(r[i][0]):int(r[i][0]+r[i][2])]=img[i]
@@ -125,28 +126,28 @@ def dibujo_puntos_cc(recortes,n,punto_elegido,cap,r,contours):
             
 
         #analizo_objeto(punto_elegido,img,n)        
-    else:
-        for i in range(n):
-            font     = cv.FONT_HERSHEY_COMPLEX_SMALL
-            bottomLeftCornerOfText = (r[i][0],r[i][1])
-            fontScale    = 0.4 
-            fontColor    = (0,0,0) 
-            lineType    = 1
-            cv.putText(frame,"Error", 
-            bottomLeftCornerOfText, 
-            font, 
-            fontScale, 
-            fontColor, 
-            lineType)
-            
-            recortes[i]=cv.Canny(recortes[i],100,200)
-            _,contours[i],_=cv.findContours(recortes[i], cv.RETR_CCOMP, cv.CHAIN_APPROX_TC89_KCOS)
-            
-            maximo[i]=max(contours[i], key = cv.contourArea)
-            momentos[i] = cv.moments(maximo[i])
-            cx[i]=float(momentos[i]['m10']/momentos[i]['m00'])
-            cy[i]=float(momentos[i]['m01']/momentos[i]['m00'])
-            punto_elegido[i]=np.array([[[cx[i],cy[i]]]],np.float32)
+##    else:
+##        for i in range(n):
+##            font     = cv.FONT_HERSHEY_COMPLEX_SMALL
+##            bottomLeftCornerOfText = (r[i][0],r[i][1])
+##            fontScale    = 0.4 
+##            fontColor    = (0,0,0) 
+##            lineType    = 1
+##            cv.putText(frame,"Error", 
+##            bottomLeftCornerOfText, 
+##            font, 
+##            fontScale, 
+##            fontColor, 
+##            lineType)
+##            
+##            recortes[i]=cv.Canny(recortes[i],100,200)
+##            _,contours[i],_=cv.findContours(recortes[i], cv.RETR_CCOMP, cv.CHAIN_APPROX_TC89_KCOS)
+##            
+##            maximo[i]=max(contours[i], key = cv.contourArea)
+##            momentos[i] = cv.moments(maximo[i])
+##            cx[i]=float(momentos[i]['m10']/momentos[i]['m00'])
+##            cy[i]=float(momentos[i]['m01']/momentos[i]['m00'])
+##            punto_elegido[i]=np.array([[[cx[i],cy[i]]]],np.float32)
             
 
 
@@ -323,6 +324,7 @@ class seguidor:
                 cy[i]=float(momentos[i]['m01']/momentos[i]['m00'])
                 aux_elegido[i]=np.array([[[cx[i],cy[i]]]],np.float32)
                 punto_elegido[i]=cv.goodFeaturesToTrack(recortes[i],mask=recortes[i],**seguidor.opciones(None,metodo)[1])
+
                 cv.imshow("{:d}".format(i),recortes[i])
         cv.destroyWindow('ROI selector')
 
