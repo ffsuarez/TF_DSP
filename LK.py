@@ -84,8 +84,9 @@ def dibujo_puntos_cc(recortes,n,punto_elegido,cap,r,contours,imrecortes):
     cx=[None]*n
     cy=[None]*n
     #pdb.set_trace()
-    lwr=np.array([h-10,s-50,v-50])
-    upr=np.array([h+10,s+50,v+50])
+    lwr=[None]*n
+    upr=[None]*n
+
     hsv=[None]*n
     for j in range(n):
         img[j]=frame[int(r[j][1]):int(r[j][1]+r[j][3]), int(r[j][0]):int(r[j][0]+r[j][2])]
@@ -93,9 +94,11 @@ def dibujo_puntos_cc(recortes,n,punto_elegido,cap,r,contours,imrecortes):
         punto_elegido[j],st[j],err[j]= cv.calcOpticalFlowPyrLK(recortes[j],img_gray[j],punto_elegido[j],cv.OPTFLOW_USE_INITIAL_FLOW, **seguidor.opciones(None,metodo)[0])
     
     for i in range(n):
+        lwr[i]=np.array([h[i],s[i]-20,v[i]-20])
+        upr[i]=np.array([h[i]+5,s[i]+20,v[i]+20])
         if(err[i]>0.01):
             for k in punto_elegido[i]:
-                cv.circle(img[i],tuple(k[0]), 3, (0,0,255), -1)
+                #cv.circle(img[i],tuple(k[0]), 3, (0,0,255), -1)
                 recortes[i]=img_gray[i].copy()           
                 frame[int(r[i][1]):int(r[i][1]+r[i][3]), int(r[i][0]):int(r[i][0]+r[i][2])]=img[i]
 
@@ -115,24 +118,25 @@ def dibujo_puntos_cc(recortes,n,punto_elegido,cap,r,contours,imrecortes):
                 lineType)                
                 #recortes[i]=img_gray[i].copy()
                 hsv[i]=cv.cvtColor(img[i],cv.COLOR_BGR2HSV)
-                recortes[i]= cv.inRange(hsv[i],lwr,upr)
+                recortes[i]= cv.inRange(hsv[i],lwr[i],upr[i])
                 recortes[i]=cv.Canny(recortes[i],100,200)
                 _,contours[i],_=cv.findContours(recortes[i], cv.RETR_CCOMP, cv.CHAIN_APPROX_TC89_KCOS)
                 if(contours[i]):
                     maximo[i]=max(contours[i], key = cv.contourArea)
                     momentos[i] = cv.moments(maximo[i])
-                pdb.set_trace()
+                #pdb.set_trace()
                 if momentos[i] is not None:
                     if(momentos[i]['m00']>0.1):
                         cx[i]=float(momentos[i]['m10']/momentos[i]['m00'])
                         cy[i]=float(momentos[i]['m01']/momentos[i]['m00'])
+                        cv.circle(img[i],tuple(k[0]), 3, (0,0,255), -1)
                         punto_elegido[i]=np.array([[[cx[i],cy[i]]]],np.float32)
 
         else:
             #recortes[i]=img_gray[i].copy()
             hsv[i]=cv.cvtColor(img[i],cv.COLOR_BGR2HSV)
 
-            recortes[i]= cv.inRange(hsv[i],lwr,upr)
+            recortes[i]= cv.inRange(hsv[i],lwr[i],upr[i])
 
             recortes[i]=cv.Canny(recortes[i],100,200)
             _,contours[i],_=cv.findContours(recortes[i], cv.RETR_CCOMP, cv.CHAIN_APPROX_TC89_KCOS)
@@ -489,16 +493,16 @@ if __name__=='__main__':
 	cap=seguidor.__init__(None,video_src)
 	_,frame=cap.read()
 	img=[np.zeros(frame.shape)]*n
-	h=0
-	s=0
-	v=0
+	h=[0]*n
+	s=[0]*n
+	v=[0]*n
 	while(tec_esc != 27):            
             if(color=='--nocolor'):
                 seguidor.run(None,puntos,cap,n,color)
             elif(color=='--color'):
                 if(puntos!=None):
                     for i in range(n):
-                        img[i],h,s,v=seleccion(puntos,cap,n)                   
+                        img[i],h[i],s[i],v[i]=seleccion(puntos,cap,n)                   
                     #for i in range(n-1):
                         #img[i]=cv.add(img[i],img[i-1])
                     aux=img[i]
