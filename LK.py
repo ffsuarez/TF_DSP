@@ -84,8 +84,8 @@ def dibujo_puntos_cc(recortes,n,punto_elegido,cap,r,contours,imrecortes):
     cx=[None]*n
     cy=[None]*n
     #pdb.set_trace()
-    lwr=np.array([h-5,s-20,v-20])
-    upr=np.array([h+5,s+20,v+20])
+    lwr=np.array([h-15,s-100,v-100])
+    upr=np.array([h+15,s+100,v+100])
     hsv=[None]*n
     for j in range(n):
         img[j]=frame[int(r[j][1]):int(r[j][1]+r[j][3]), int(r[j][0]):int(r[j][0]+r[j][2])]
@@ -118,7 +118,6 @@ def dibujo_puntos_cc(recortes,n,punto_elegido,cap,r,contours,imrecortes):
                 recortes[i]= cv.inRange(hsv[i],lwr,upr)
                 recortes[i]=cv.Canny(recortes[i],100,200)
                 _,contours[i],_=cv.findContours(recortes[i], cv.RETR_CCOMP, cv.CHAIN_APPROX_TC89_KCOS)
-
                 maximo[i]=max(contours[i], key = cv.contourArea)
                 momentos[i] = cv.moments(maximo[i])
                 cx[i]=float(momentos[i]['m10']/momentos[i]['m00'])
