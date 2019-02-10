@@ -70,6 +70,62 @@ def puntos_objeto(frame):
     r=cv.selectROI(frame)    
     return(r)
 #---------------------------------------------------------------------
+
+
+def dibujo_puntos_cc(recortes,n,punto_elegido,cap,r,contours):
+    _,frame=cap.read()    
+    st=[None]*n
+    err=[None]*n
+    img=[None]*n
+    img_gray=[None]*n
+    for j in range(n):
+        img[j]=frame[int(r[j][1]):int(r[j][1]+r[j][3]), int(r[j][0]):int(r[j][0]+r[j][2])]
+        img_gray[j]=cv.cvtColor(img[j],cv.COLOR_BGR2GRAY)
+        punto_elegido[j],st[j],err[j]= cv.calcOpticalFlowPyrLK(recortes[j],img_gray[j],punto_elegido[j],None, **seguidor.opciones(None,metodo)[0])
+    for i in range(n):
+        for k in punto_elegido[i]:
+            cv.circle(img[i],tuple(k[0]), 3, (0,0,255), -1)
+            recortes[i]=img_gray[i].copy()           
+            frame[int(r[i][1]):int(r[i][1]+r[i][3]), int(r[i][0]):int(r[i][0]+r[i][2])]=img[i]
+        #https://stackoverflow.com/questions/48829532/module-cv2-cv2-has-no-attribute-puttext
+##        font     = cv.FONT_HERSHEY_COMPLEX_SMALL
+##        bottomLeftCornerOfText = (r[i][0],r[i][1])
+##        fontScale    = 0.4 
+##        fontColor    = (0,0,0) 
+##        lineType    = 1
+##        
+##        if((punto_elegido[i][0][0][0]<0)or(punto_elegido[i][0][0][1]<0)or(punto_elegido[i][0][0][1]>int(r[i][3]))or(punto_elegido[i][0][0][0]>int(r[i][2]))):
+##            cv.putText(frame,"FUERA DE ROI", 
+##            bottomLeftCornerOfText, 
+##            font, 
+##            fontScale, 
+##            fontColor, 
+##            lineType)
+##        else:
+##            cv.putText(frame,"       {:.2f}".format(punto_elegido[i][0][0][1]), 
+##            bottomLeftCornerOfText, 
+##            font, 
+##            fontScale, 
+##            fontColor, 
+##            lineType)
+##            cv.putText(frame,"{:.2f}".format(punto_elegido[i][0][0][0]), 
+##            bottomLeftCornerOfText, 
+##            font, 
+##            fontScale, 
+##            fontColor, 
+##            lineType)
+
+            
+
+        #analizo_objeto(punto_elegido,img,n)        
+    cv.imshow('testing',frame)
+
+
+
+
+
+
+#---------------------------------------------------------------------
 def dibujo_puntos_nc(recortes,n,punto_elegido,cap,r,contours,aux_elegido,imrecortes):
     _,frame=cap.read()    
     st=[None]*n
