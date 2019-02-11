@@ -473,7 +473,7 @@ def seleccion(puntos,cap,n):
         #break
     #cv.destroyWindow('Seleccion')
     #pdb.set_trace()
-    cv.destroyAllWindows()
+    #cv.destroyAllWindows()
     return(mask,h,s,v)
                 
             
