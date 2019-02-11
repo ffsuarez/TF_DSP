@@ -439,33 +439,40 @@ class seguidor:
          
 
 def seleccion(puntos,cap,n):
-    #pdb.set_trace()
-    ret,frame=cap.read()
-    cv.namedWindow('Color HSV',cv.WINDOW_NORMAL)
-    cv.resizeWindow('Color HSV', 100,50)
-    cv.createTrackbar('H','Color HSV',0,175,nada)
-    cv.createTrackbar('S','Color HSV',0,235,nada)
-    cv.createTrackbar('V','Color HSV',0,235,nada)    
-    if(ret==False):
-        print('Hubo un error')
-        sys.exit(1)
-    r=[None]*n
-    res=[None]*n        
+    _,frame=cap.read()
     hsv=cv.cvtColor(frame,cv.COLOR_BGR2HSV)
-    while(True):
-        h=cv.getTrackbarPos('H','Color HSV')
-        s=cv.getTrackbarPos('S','Color HSV')
-        v=cv.getTrackbarPos('V','Color HSV')
-
-        lwr=np.array([h-5,s-20,v-20])
-        upr=np.array([h+5,s+20,v+20])
-        
-
+    #esp=sys.argv[5]
+    ra=[None]*n
+    recortes=[None]*n
+    objeto=[None]*n
+    min=[None]*n
+    max=[None]*n
+    h=0
+    s=0
+    v=0
+    for i in range(n):
+        print('Encierre el objeto a seguir')
+        ra[i]=puntos_objeto(frame)
+        #puntos.append(ra[i])
+        objeto[i]=hsv[int(ra[i][1]):int(ra[i][1]+ra[i][3]), int(ra[i][0]):int(ra[i][0]+ra[i][2])]
+        color_predominante=buscar_rgb(objeto[i])
+        #https://opencv-python-tutroals.readthedocs.io/en/latest/py_tutorials/py_imgproc/py_colorspaces/py_colorspaces.html
+        color_pred=np.uint8([[color_predominante]])
+        color_pred_hsv=cv.cvtColor(color_pred,cv.COLOR_BGR2HSV)
+        #min[i]=[color_pred_hsv[0][0][0],100,100]
+        h=color_pred_hsv[0][0][0]
+        s=color_pred_hsv[0][0][1]
+        v=color_pred_hsv[0][0][2]
+        #pdb.set_trace()
+        lwr=np.array([h-20,s-60,v-60])
+        upr=np.array([h+20,s+60,v+60])
         mask= cv.inRange(hsv,lwr,upr)
         cv.imshow('Seleccion',mask)
-        if cv.waitKey(20) & 0xFF == 27:
-            break
-    cv.destroyWindow('Seleccion')
+    #if cv.waitKey(20) & 0xFF == 27:
+        #break
+    #cv.destroyWindow('Seleccion')
+    pdb.set_trace()
+    #cv.destroyAllWindows()
     return(mask,h,s,v)
                 
             
@@ -474,6 +481,25 @@ def seleccion(puntos,cap,n):
 
 
 #---------------------------------------------------------------------
+
+
+#https://stackoverflow.com/questions/50899692/most-dominant-color-in-rgb-image-opencv-numpy-python
+def buscar_rgb(img):
+    data = np.reshape(img, (-1,3))
+    print(data.shape)
+    data = np.float32(data)
+
+    criteria = (cv.TERM_CRITERIA_EPS + cv.TERM_CRITERIA_MAX_ITER, 10, 1.0)
+    flags = cv.KMEANS_RANDOM_CENTERS
+    compactness,labels,centers = cv.kmeans(data,1,None,criteria,10,flags)
+
+    print('Dominant color is: bgr({})'.format(centers[0].astype(np.int32)))
+    return(centers[0].astype(np.int32))
+#---------------------------------------------------------------------
+
+
+
+
 #---------------------------------------------------------------------
 import os
 
