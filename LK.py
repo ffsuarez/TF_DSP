@@ -447,32 +447,33 @@ def seleccion(puntos,cap,n):
     objeto=[None]*n
     min=[None]*n
     max=[None]*n
-    h=0
-    s=0
-    v=0
+    h=[0]*n
+    s=[0]*n
+    v=[0]*n
+    mask=[None]*n
     for i in range(n):
         print('Encierre el objeto a seguir')
         ra[i]=puntos_objeto(frame)
         #puntos.append(ra[i])
-        objeto[i]=hsv[int(ra[i][1]):int(ra[i][1]+ra[i][3]), int(ra[i][0]):int(ra[i][0]+ra[i][2])]
+        objeto[i]=frame[int(ra[i][1]):int(ra[i][1]+ra[i][3]), int(ra[i][0]):int(ra[i][0]+ra[i][2])]
         color_predominante=buscar_rgb(objeto[i])
         #https://opencv-python-tutroals.readthedocs.io/en/latest/py_tutorials/py_imgproc/py_colorspaces/py_colorspaces.html
         color_pred=np.uint8([[color_predominante]])
         color_pred_hsv=cv.cvtColor(color_pred,cv.COLOR_BGR2HSV)
         #min[i]=[color_pred_hsv[0][0][0],100,100]
-        h=color_pred_hsv[0][0][0]
-        s=color_pred_hsv[0][0][1]
-        v=color_pred_hsv[0][0][2]
+        h[i]=color_pred_hsv[0][0][0]
+        s[i]=color_pred_hsv[0][0][1]
+        v[i]=color_pred_hsv[0][0][2]
         #pdb.set_trace()
-        lwr=np.array([h-20,s-60,v-60])
-        upr=np.array([h+20,s+60,v+60])
-        mask= cv.inRange(hsv,lwr,upr)
-        cv.imshow('Seleccion',mask)
+        lwr=np.array([h[i]-10,s[i]-30,v[i]-30])
+        upr=np.array([h[i]+10,s[i]+30,v[i]+30])
+        mask[i]= cv.inRange(hsv,lwr,upr)
+        cv.imshow('Seleccion',mask[i])
     #if cv.waitKey(20) & 0xFF == 27:
         #break
     #cv.destroyWindow('Seleccion')
-    pdb.set_trace()
-    #cv.destroyAllWindows()
+    #pdb.set_trace()
+    cv.destroyAllWindows()
     return(mask,h,s,v)
                 
             
@@ -527,11 +528,11 @@ if __name__=='__main__':
                 seguidor.run(None,puntos,cap,n,color)
             elif(color=='--color'):
                 if(puntos!=None):
-                    for i in range(n):
-                        img[i],h[i],s[i],v[i]=seleccion(puntos,cap,n)                   
+                    #for i in range(n):
+                    img,h,s,v=seleccion(puntos,cap,n)                   
                     #for i in range(n-1):
                         #img[i]=cv.add(img[i],img[i-1])
-                    aux=img[i]
+                    aux=img
                     seguidor.runcolor(None,puntos,cap,n,color,img,aux)
             tec_esc=cv.waitKey(0)
 	cv.destroyAllWindows()
