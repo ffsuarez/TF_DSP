@@ -322,7 +322,7 @@ class seguidor:
             
             
             if(metod=='--lk'):
-                    lk_params = dict( winSize  = (100, 100),maxLevel = 20,criteria = (cv.TERM_CRITERIA_EPS | cv.TERM_CRITERIA_COUNT , 20, 0.003))
+                    lk_params = dict( winSize  = (100, 100),maxLevel = 20,criteria = (cv.TERM_CRITERIA_EPS | cv.TERM_CRITERIA_COUNT , 20, 5))
                     feature_params = dict( maxCorners = 4,qualityLevel = 0.1,minDistance = 3,blockSize = 10 )
                     return(lk_params,feature_params)
             else:
