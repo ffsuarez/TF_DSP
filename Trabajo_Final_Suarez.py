@@ -57,13 +57,42 @@ def seleccion(frame,recorte,situacion,h1,s1,v1):
 #----------------------------------------------
 #necesario realizar esto en otro entorno porque sino no anda max
 #no sacar imagenes en h s v en este entorno
-def contornos(mask):
-    umb=cv.adaptiveThreshold(mask,255,cv.ADAPTIVE_THRESH_GAUSSIAN_C,cv.THRESH_BINARY,11,2)
+def contornos(mask,situacion,area):
+    if(situacion==0):
+     p=cv.selectROI(mask)
+     mask2=mask.copy()
+     mask2=cv.subtract(mask2,mask2)
+     mask2[int(p[1]):int(p[1]+p[3]), int(p[0]):int(p[0]+p[2])]=mask[int(p[1]):int(p[1]+p[3]), int(p[0]):int(p[0]+p[2])]
+    else:
+     mask2=mask
+    umb=cv.adaptiveThreshold(mask2,255,cv.ADAPTIVE_THRESH_GAUSSIAN_C,cv.THRESH_BINARY,11,2)
     canny=cv.Canny(umb,100,200)
     canny=cv.GaussianBlur(canny,(5,5),5)
     _,con,_=cv.findContours(canny, cv.RETR_CCOMP, cv.CHAIN_APPROX_TC89_KCOS)
-    if con:
+    if (situacion==1):
+     if con:
+      for i in con:
+       if(cv.contourArea(i)>10):
+        if((area-0.6*area)<cv.contourArea(i)<(area+0.6*area)):
+         momentos = cv.moments(i)
+         try:
+          cx=float(momentos['m10']/momentos['m00'])
+          cy=float(momentos['m01']/momentos['m00'])
+          punto_elegido=np.array([[[cx,cy]]],np.float32)
+          print(punto_elegido)
+         except ZeroDivisionError as zr:
+          print("Division por cero")
+          punto_elegido=np.array([[[641,481]]],np.float32)
+          #sys.exit()
+         print(punto_elegido)
+         return(punto_elegido,area)
+     punto_elegido=np.array([[[641,481]]],np.float32)
+     print(punto_elegido)
+     return(punto_elegido,area)
+
+    elif con:
         vmax=max(con, key = cv.contourArea)
+        area=cv.contourArea(vmax)
         momentos = cv.moments(vmax)
         try:
             cx=float(momentos['m10']/momentos['m00'])
@@ -75,16 +104,19 @@ def contornos(mask):
             #sys.exit()
             return(punto_elegido)
         punto_elegido=np.array([[[cx,cy]]],np.float32)
-        return(punto_elegido)
+        pdb.set_trace()
+        return(punto_elegido,area)
             
 
 #--------------------
 
+
+#--------------------
 if __name__=='__main__':
-##    cap=cv.VideoCapture(0)
-##    cap.set(cv.CAP_PROP_FPS,30)
-    cap=cv.VideoCapture('pelota.mp4')
-    cap.set(cv.CAP_PROP_POS_FRAMES,60)
+    cap=cv.VideoCapture(0)
+    cap.set(cv.CAP_PROP_FPS,30)
+    #cap=cv.VideoCapture('pelota.mp4')
+    #cap.set(cv.CAP_PROP_POS_FRAMES,60)
     ok,frame=cap.read()
     if not ok:
         print("problemas con la camara")
@@ -96,8 +128,9 @@ if __name__=='__main__':
     h=0
     s=0
     v=0
+    area=0
     mask,h,s,v=seleccion(frame,recorte,1,h,s,v)
-    punto_elegido=contornos(mask)
+    punto_elegido,area=contornos(mask,0,area)
     st=0
     err=0
     old_gray=cv.cvtColor(frame,cv.COLOR_BGR2GRAY)
@@ -120,7 +153,7 @@ if __name__=='__main__':
     measurement = np.array((1,2), np.float32)
     prediction = np.zeros((1,2), np.float32)
     #prediction2 = np.zeros((1,2), np.float32) #experimental calculada cuando hay oclusion
-    opcion=1
+    opcion=0
     while(opcion==1):
         #_,frame=cap.read()
         while(err<1):
@@ -148,7 +181,7 @@ if __name__=='__main__':
                 sys.exit()
 
         mask,_,_,_=seleccion(frame,recorte,0,h,s,v)
-        punto_elegido=contornos(mask)
+        punto_elegido,area=contornos(mask,1,area)
         old_gray=new_gray
         new_gray=cv.cvtColor(frame,cv.COLOR_BGR2GRAY)
         err=0
@@ -167,7 +200,8 @@ if __name__=='__main__':
     while(opcion==0):
         _,frame=cap.read()
         mask,_,_,_=seleccion(frame,recorte,0,h,s,v)
-        measurement=contornos(mask)
+        measurement,area=contornos(mask,1,area)
+        #measurement=contornos(mask)
         if(measurement is not None):
             kfObj.correct(measurement[0][0])
             prediction=kfObj.predict()
