@@ -75,21 +75,21 @@ def contornos(mask,situacion,asp_rad):
        if(cv.contourArea(i)>700):
         x,y,w,h = cv.boundingRect(i)
         ASP_rad= float(w)/h
-        if((asp_rad-0.3*asp_rad)<ASP_rad<(asp_rad+0.3*asp_rad)):
+        if((asp_rad-0.2*asp_rad)<ASP_rad<(asp_rad+0.2*asp_rad)):
          momentos = cv.moments(i)
          try:
           cx=float(momentos['m10']/momentos['m00'])
           cy=float(momentos['m01']/momentos['m00'])
           punto_elegido=np.array([[[cx,cy]]],np.float32)
-          print(punto_elegido)
+          #print(punto_elegido)
          except ZeroDivisionError as zr:
-          print("Division por cero")
+          #print("Division por cero")
           punto_elegido=np.array([[[641,481]]],np.float32)
           #sys.exit()
-         print(punto_elegido)
+         #print(punto_elegido)
          return(punto_elegido,asp_rad)
      punto_elegido=np.array([[[641,481]]],np.float32)
-     print(punto_elegido)
+     #print(punto_elegido)
      return(punto_elegido,asp_rad)
 
     elif con:
