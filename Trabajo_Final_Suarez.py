@@ -57,7 +57,7 @@ def seleccion(frame,recorte,situacion,h1,s1,v1):
 #----------------------------------------------
 #necesario realizar esto en otro entorno porque sino no anda max
 #no sacar imagenes en h s v en este entorno
-def contornos(mask,situacion,area):
+def contornos(mask,situacion,asp_rad):
     if(situacion==0):
      p=cv.selectROI(mask)
      mask2=mask.copy()
@@ -72,8 +72,10 @@ def contornos(mask,situacion,area):
     if (situacion==1):
      if con:
       for i in con:
-       if(cv.contourArea(i)>10):
-        if((area-0.6*area)<cv.contourArea(i)<(area+0.6*area)):
+       if(cv.contourArea(i)>700):
+        x,y,w,h = cv.boundingRect(i)
+        ASP_rad= float(w)/h
+        if((asp_rad-0.3*asp_rad)<ASP_rad<(asp_rad+0.3*asp_rad)):
          momentos = cv.moments(i)
          try:
           cx=float(momentos['m10']/momentos['m00'])
@@ -85,14 +87,16 @@ def contornos(mask,situacion,area):
           punto_elegido=np.array([[[641,481]]],np.float32)
           #sys.exit()
          print(punto_elegido)
-         return(punto_elegido,area)
+         return(punto_elegido,asp_rad)
      punto_elegido=np.array([[[641,481]]],np.float32)
      print(punto_elegido)
-     return(punto_elegido,area)
+     return(punto_elegido,asp_rad)
 
     elif con:
         vmax=max(con, key = cv.contourArea)
-        area=cv.contourArea(vmax)
+        #area=cv.contourArea(vmax)
+        x,y,w,h = cv.boundingRect(vmax)
+        asp_rad= float(w)/h
         momentos = cv.moments(vmax)
         try:
             cx=float(momentos['m10']/momentos['m00'])
@@ -102,10 +106,10 @@ def contornos(mask,situacion,area):
             print("Division por cero")
             punto_elegido=np.array([[[641,481]]],np.float32)
             #sys.exit()
-            return(punto_elegido)
+            return(punto_elegido,asp_rad)
         punto_elegido=np.array([[[cx,cy]]],np.float32)
-        pdb.set_trace()
-        return(punto_elegido,area)
+        #pdb.set_trace()
+        return(punto_elegido,asp_rad)
             
 
 #--------------------
@@ -128,9 +132,9 @@ if __name__=='__main__':
     h=0
     s=0
     v=0
-    area=0
+    asp_rad=0
     mask,h,s,v=seleccion(frame,recorte,1,h,s,v)
-    punto_elegido,area=contornos(mask,0,area)
+    punto_elegido,asp_rad=contornos(mask,0,asp_rad)
     st=0
     err=0
     old_gray=cv.cvtColor(frame,cv.COLOR_BGR2GRAY)
@@ -181,7 +185,7 @@ if __name__=='__main__':
                 sys.exit()
 
         mask,_,_,_=seleccion(frame,recorte,0,h,s,v)
-        punto_elegido,area=contornos(mask,1,area)
+        punto_elegido,asp_rad=contornos(mask,1,asp_rad)
         old_gray=new_gray
         new_gray=cv.cvtColor(frame,cv.COLOR_BGR2GRAY)
         err=0
@@ -200,7 +204,7 @@ if __name__=='__main__':
     while(opcion==0):
         _,frame=cap.read()
         mask,_,_,_=seleccion(frame,recorte,0,h,s,v)
-        measurement,area=contornos(mask,1,area)
+        measurement,asp_rad=contornos(mask,1,asp_rad)
         #measurement=contornos(mask)
         if(measurement is not None):
             kfObj.correct(measurement[0][0])
