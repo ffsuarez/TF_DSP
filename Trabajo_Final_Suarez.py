@@ -38,16 +38,16 @@ def seleccion(frame,recorte,situacion,h1,s1,v1):
         h=color_pred_hsv[0][0][0]
         s=color_pred_hsv[0][0][1]
         v=color_pred_hsv[0][0][2]
-        valor=30
+        valor=100
 
     else:
         h=h1
         s=s1
         v=v1
-        valor=50
+        valor=100
     #pdb.set_trace()
-    lwr=np.array([h-2,s-valor,v-valor])
-    upr=np.array([h+2,s+valor,v+valor])
+    lwr=np.array([h-15,s-valor,v-valor])
+    upr=np.array([h+15,s+valor,v+valor])
     mask= cv.inRange(hsv,lwr,upr)
     if(situacion==1):
         while(cv.waitKey(5)&0xFF!=ord('f')):
@@ -157,7 +157,10 @@ if __name__=='__main__':
     measurement = np.array((1,2), np.float32)
     prediction = np.zeros((1,2), np.float32)
     #prediction2 = np.zeros((1,2), np.float32) #experimental calculada cuando hay oclusion
-    opcion=0
+    opcion=1
+    # Define the codec and create VideoWriter object
+    fourcc = cv.VideoWriter_fourcc(*'XVID')
+    out = cv.VideoWriter('output3.avi',fourcc, 20.0, (640,480))
     while(opcion==1):
         #_,frame=cap.read()
         while(err<1):
@@ -191,12 +194,15 @@ if __name__=='__main__':
         err=0
         cv.imshow('testing',frame)
         cv.imshow('mascara',mask)
+        out.write(frame)
         if(st==0):
             print("Objeto retirado bucle externo")
             #sys.exit()
         if(cv.waitKey(5)& 0xFF==ord('f')):
             cv.destroyAllWindows()
             print("Terminado por usuario")
+            out.release()
+            cap.release()
             sys.exit()
     #pdb.set_trace()
     
@@ -224,11 +230,15 @@ if __name__=='__main__':
 #--------------------------experimental----------------------------------------
         cv.imshow('testing',frame)
         cv.imshow('mascara',mask)
+        out.write(frame)
         #print(prediction)
         if(cv.waitKey(20)& 0xFF==ord('f')):
             cv.destroyAllWindows()
+            out.release()
+            cap.release()
             print("Terminado por usuario")
             sys.exit()
 
     
     
+
